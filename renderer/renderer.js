@@ -593,3 +593,107 @@ if (currentTagsEl) {
     }
   });
 }
+
+/* ===== Zoom & Pan (Playback Area) ===== */
+// Scroll wheel to zoom, click-drag to pan when zoomed > 1, double-click to reset.
+let _zoom = 1;
+let _panX = 0;
+let _panY = 0;
+let _isDragging = false;
+let _dragStartX = 0;
+let _dragStartY = 0;
+let _origPanX = 0;
+let _origPanY = 0;
+
+function applyVideoTransform() {
+  // Clamp pan so you can't drag beyond edges excessively
+  const rect = videoEl.getBoundingClientRect();
+  const maxX = (_zoom - 1) * rect.width / 2;
+  const maxY = (_zoom - 1) * rect.height / 2;
+  if (maxX > 0) {
+    _panX = Math.max(-maxX, Math.min(maxX, _panX));
+  } else { _panX = 0; }
+  if (maxY > 0) {
+    _panY = Math.max(-maxY, Math.min(maxY, _panY));
+  } else { _panY = 0; }
+  videoEl.style.transform = `translate(${_panX}px, ${_panY}px) scale(${_zoom})`;
+  if (_zoom > 1) {
+    videoEl.style.cursor = _isDragging ? 'grabbing' : 'grab';
+  } else {
+    videoEl.style.cursor = 'default';
+  }
+}
+
+function resetZoomPan() {
+  _zoom = 1;
+  _panX = 0;
+  _panY = 0;
+  applyVideoTransform();
+}
+
+videoEl.addEventListener('wheel', (e) => {
+  // Only act if not over an overlay
+  if (isRenaming || isTagging || isEnteringDetails) return;
+  e.preventDefault();
+  const prevZoom = _zoom;
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  _zoom = Math.max(1, Math.min(8, _zoom * factor));
+  // Keep pointer position roughly stable while zooming
+  if (_zoom !== prevZoom) {
+    const rect = videoEl.getBoundingClientRect();
+    const cx = e.clientX - rect.left - rect.width / 2;
+    const cy = e.clientY - rect.top - rect.height / 2;
+    // Adjust pan so the zoom centers around cursor
+    _panX = ( _panX + cx ) * (_zoom / prevZoom) - cx;
+    _panY = ( _panY + cy ) * (_zoom / prevZoom) - cy;
+    applyVideoTransform();
+  }
+}, { passive: false });
+
+videoEl.addEventListener('mousedown', (e) => {
+  if (_zoom <= 1) return; // no pan when not zoomed
+  if (e.button !== 0) return;
+  _isDragging = true;
+  videoEl.classList.add('dragging');
+  _dragStartX = e.clientX;
+  _dragStartY = e.clientY;
+  _origPanX = _panX;
+  _origPanY = _panY;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!_isDragging) return;
+  const dx = e.clientX - _dragStartX;
+  const dy = e.clientY - _dragStartY;
+  _panX = _origPanX + dx;
+  _panY = _origPanY + dy;
+  applyVideoTransform();
+});
+
+window.addEventListener('mouseup', () => {
+  if (_isDragging) {
+    _isDragging = false;
+    videoEl.classList.remove('dragging');
+  applyVideoTransform();
+  }
+});
+
+videoEl.addEventListener('mouseleave', () => {
+  if (_isDragging) {
+    _isDragging = false;
+    videoEl.classList.remove('dragging');
+  applyVideoTransform();
+  }
+});
+
+videoEl.addEventListener('dblclick', () => {
+  resetZoomPan();
+});
+
+// Reset zoom/pan whenever a new video loads
+const _origLoadVideoAt = loadVideoAt;
+loadVideoAt = function(i, keepPaused = true) { // override while preserving original
+  _origLoadVideoAt(i, keepPaused);
+  resetZoomPan();
+};
+

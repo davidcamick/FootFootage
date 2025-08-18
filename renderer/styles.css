@@ -81,7 +81,16 @@ video {
   border: 1px solid var(--border);
   border-radius: 12px;
   object-fit: contain;
+  overflow: hidden;
+  /* Prepare for transforms */
+  transform-origin: center center;
+  transition: transform 0.05s linear; /* subtle smoothing */
+  cursor: default;
 }
+
+video.dragging { cursor: grabbing !important; }
+
+
 
 .controls {
   background: var(--panel);
