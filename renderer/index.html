@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Footage Renamer</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; media-src 'self' file: blob: data:; script-src 'self';">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="left">
+      <button id="openFolderBtn" class="btn">Open Folder</button>
+      <div id="folderPath" class="folder-path"></div>
+    </div>
+    <div class="center">
+      <div id="fileCounter" class="counter">0 / 0</div>
+    </div>
+    <div class="right">
+      <button id="showInFolderBtn" class="btn secondary">Reveal in Finder/Explorer</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="viewer">
+      <video id="video" preload="metadata" playsinline></video>
+
+      <div class="overlay rename-overlay hidden" id="renameOverlay">
+        <div class="rename-card">
+          <div class="rename-label">Rename (keep extension auto):</div>
+          <input id="renameInput" type="text" spellcheck="false" />
+          <div class="hint">Press Enter to save • Esc to cancel</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="row">
+          <button id="prevBtn" class="btn">⟵ Prev</button>
+          <button id="playPauseBtn" class="btn">Play</button>
+          <button id="muteBtn" class="btn">Mute</button>
+          <button id="nextBtn" class="btn">Next ⟶</button>
+          <button id="deleteBtn" class="btn" style="margin-left:auto;background:#40222a;border-color:#5a2a34;">Delete</button>
+        </div>
+
+        <div class="row progress">
+          <div id="currentName" class="filename">No file loaded</div>
+          <div class="time">
+            <span id="currentTime">00:00</span>
+            <input id="seek" type="range" min="0" max="100" step="0.1" value="0" />
+            <span id="duration">00:00</span>
+          </div>
+        </div>
+
+        <div class="row tips">
+          <span>Shortcuts: ←/→ to navigate • Space to Play/Pause • Enter to rename (then Enter to save) • Esc to cancel rename</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>

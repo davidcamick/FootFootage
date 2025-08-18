@@ -1,0 +1,13 @@
+{
+  "name": "footage-renamer",
+  "version": "1.0.0",
+  "description": "Electron app to preview and rename footage quickly",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.2.0"
+  }
+}
