@@ -1,6 +1,7 @@
 // renderer/renderer.js
 
 const openFolderBtn = document.getElementById('openFolderBtn');
+const loadRosterBtn = document.getElementById('loadRosterBtn');
 const showInFolderBtn = document.getElementById('showInFolderBtn');
 const folderPathEl = document.getElementById('folderPath');
 const fileCounterEl = document.getElementById('fileCounter');
@@ -19,6 +20,11 @@ const durationEl = document.getElementById('duration');
 
 const renameOverlay = document.getElementById('renameOverlay');
 const renameInput = document.getElementById('renameInput');
+const tagOverlay = document.getElementById('tagOverlay');
+const tagInput = document.getElementById('tagInput');
+const tagSuggestions = document.getElementById('tagSuggestions');
+const detailsOverlay = document.getElementById('detailsOverlay');
+const detailsInput = document.getElementById('detailsInput');
 
 const toastEl = document.getElementById('toast');
 
@@ -28,6 +34,11 @@ let index = 0;
 
 let isRenaming = false;
 let seeking = false;
+let isTagging = false;
+let isEnteringDetails = false;
+let ROSTER = null; // {team, season, players: []}
+let currentTags = []; // array of player objects currently tagged for the active file (not persisted globally)
+let fileTagCache = new Map(); // path -> array of player objects to allow revisiting
 
 /* ===== Utilities ===== */
 
@@ -44,6 +55,128 @@ function sanitizeBaseName(name) {
   const cleaned = name.replace(/[\/\\:*?"<>|]/g, '-').trim();
   // Avoid empty or dots-only
   return cleaned.replace(/^\.+$/, '').trim();
+}
+
+function getLastName(fullName) {
+  if (!fullName) return '';
+  const parts = fullName.trim().split(/\s+/);
+  return parts[parts.length - 1];
+}
+
+function ensureUniqueTags(tags) {
+  const seen = new Set();
+  const out = [];
+  for (const p of tags) {
+    const key = p.number + '|' + p.name;
+    if (!seen.has(key)) {
+      seen.add(key);
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+function buildTaggedBaseName(originalBase, tags) {
+  if (!tags.length) return originalBase;
+  const suffixes = tags.map(p => getLastName(p.name)).filter(Boolean);
+  if (!suffixes.length) return originalBase;
+  return originalBase + '_' + suffixes.join('_');
+}
+
+function filterPlayersByNumber(prefix) {
+  if (!ROSTER || !ROSTER.players) return [];
+  if (!prefix) return ROSTER.players.slice(0, 50); // limit
+  const lower = prefix.toLowerCase();
+  return ROSTER.players.filter(p => p.number.toLowerCase().startsWith(lower)).slice(0, 50);
+}
+
+function renderSuggestions(list) {
+  if (!list.length) {
+    tagSuggestions.innerHTML = '<div class="item" style="opacity:0.5;pointer-events:none;">No matches</div>';
+    return;
+  }
+  tagSuggestions.innerHTML = list.map(p => `
+    <div class="item" data-number="${p.number.replace(/"/g,'&quot;')}" data-name="${p.name.replace(/"/g,'&quot;')}">
+      <span class="num">#${p.number}</span>
+      <span class="name">${p.name}</span>
+      <span class="pos">${p.position || ''}</span>
+    </div>`).join('');
+}
+
+function openTagOverlay() {
+  if (!FILES.length || isRenaming || isTagging) return;
+  if (!ROSTER) {
+    showToast('Load roster first (button top-left)');
+    return;
+  }
+  isTagging = true;
+  const file = FILES[index];
+  currentTags = fileTagCache.get(file.path) ? [...fileTagCache.get(file.path)] : [];
+  tagInput.value = '';
+  tagOverlay.classList.remove('hidden');
+  tagSuggestions.classList.remove('hidden');
+  renderSuggestions(filterPlayersByNumber(''));
+  setTimeout(() => { tagInput.focus(); tagInput.select(); }, 0);
+}
+
+function closeTagOverlay() {
+  if (!isTagging) return;
+  isTagging = false;
+  tagOverlay.classList.add('hidden');
+}
+
+function openDetailsOverlay() {
+  if (!FILES.length || isRenaming || isEnteringDetails) return;
+  isEnteringDetails = true;
+  detailsInput.value = '';
+  detailsOverlay.classList.remove('hidden');
+  setTimeout(()=>{ detailsInput.focus(); detailsInput.select(); },0);
+}
+
+function closeDetailsOverlay() {
+  if (!isEnteringDetails) return;
+  isEnteringDetails = false;
+  detailsOverlay.classList.add('hidden');
+}
+
+function finalizeTagsThenDetails() {
+  if (!isTagging) return;
+  if (!FILES.length) { closeTagOverlay(); return; }
+  // proceed to details entry (rename will happen after details)
+  closeTagOverlay();
+  openDetailsOverlay();
+}
+
+async function performTagRename(file, newBase) {
+  // Pause & detach to avoid file locks
+  const wasPlaying = !videoEl.paused;
+  videoEl.pause();
+  videoEl.src = '';
+  const res = await window.api.renameFile(file.path, sanitizeBaseName(newBase));
+  if (!res || !res.ok) {
+    showToast('Tag rename failed');
+    videoEl.src = file.url;
+    if (wasPlaying) videoEl.play().catch(()=>{});
+    closeTagOverlay();
+    return;
+  }
+  FILES[index] = res.file;
+  loadVideoAt(index, true);
+  showToast('Tagged');
+  closeTagOverlay();
+}
+
+function addTag(player) {
+  currentTags.push(player);
+  currentTags = ensureUniqueTags(currentTags);
+  const label = currentTags.map(p => '#' + p.number + ' ' + getLastName(p.name)).join(', ');
+  tagInput.value = '';
+  tagInput.placeholder = label || 'Type jersey number';
+  renderSuggestions(filterPlayersByNumber(''));
+  // cache current tags per file
+  if (FILES.length) {
+    fileTagCache.set(FILES[index].path, [...currentTags]);
+  }
 }
 
 function showToast(msg, ms = 1800) {
@@ -293,6 +426,50 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  if (isEnteringDetails) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const details = sanitizeBaseName(detailsInput.value.trim());
+      const file = FILES[index];
+      const baseNoExtra = file.base.split(/_(?=[^_]+$)/)[0] || file.base; // first segment before last underscore if any
+      let taggedBase = buildTaggedBaseName(baseNoExtra, currentTags);
+      if (details) taggedBase = taggedBase + '_' + details;
+      closeDetailsOverlay();
+      performTagRename(file, taggedBase);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeDetailsOverlay();
+      showToast('Canceled details');
+      return;
+    }
+    return;
+  }
+
+  if (isTagging) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      finalizeTagsThenDetails();
+      return;
+    }
+    if (e.key === ' ') { // allow play/pause while tagging
+      e.preventDefault();
+      if (videoEl.paused) {
+        videoEl.play().catch(()=>{});
+      } else {
+        videoEl.pause();
+      }
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeTagOverlay();
+      return;
+    }
+    return; // other keys handled by input event
+  }
+
   // Global shortcuts
   if (e.key === 'ArrowRight') {
     e.preventDefault();
@@ -307,9 +484,12 @@ document.addEventListener('keydown', (e) => {
     } else {
       videoEl.pause();
     }
-  } else if (e.key === 'Enter') {
+  } else if (e.key === 'Enter') { // new flow: Enter -> tag overlay first
     e.preventDefault();
-    startRename();
+    openTagOverlay();
+  } else if (e.key.toLowerCase() === 't') {
+    e.preventDefault();
+    openTagOverlay();
   } else if (e.key === 'Delete') {
     e.preventDefault();
     deleteBtn.click();
@@ -330,5 +510,49 @@ window.addEventListener('DOMContentLoaded', async () => {
       fileCounterEl.textContent = '0 / 0';
       videoEl.src = '';
     }
+  }
+});
+
+/* Roster load button */
+loadRosterBtn.addEventListener('click', async () => {
+  const res = await window.api.pickRoster();
+  if (res && !res.canceled && res.roster) {
+    ROSTER = res.roster;
+    showToast('Roster loaded: ' + (ROSTER.team || 'Team'));
+  } else if (res && res.error) {
+    showToast('Roster error: ' + res.error);
+  }
+});
+
+/* Attempt to load stored roster at startup */
+window.api.getRoster().then(r => { if (r && r.ok) { ROSTER = r.roster; } });
+
+/* Tag input events */
+tagInput.addEventListener('input', (e) => {
+  if (!isTagging) return;
+  const v = e.target.value.trim();
+  renderSuggestions(filterPlayersByNumber(v));
+});
+
+tagSuggestions.addEventListener('click', (e) => {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  const num = item.getAttribute('data-number');
+  const name = item.getAttribute('data-name');
+  const player = ROSTER.players.find(p => p.number === num && p.name === name);
+  if (player) {
+    addTag(player);
+  }
+});
+
+tagOverlay.addEventListener('click', (e) => {
+  if (e.target === tagOverlay) {
+    closeTagOverlay();
+  }
+});
+
+detailsOverlay.addEventListener('click', (e) => {
+  if (e.target === detailsOverlay) {
+    closeDetailsOverlay();
   }
 });

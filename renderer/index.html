@@ -11,6 +11,7 @@
   <header class="app-header">
     <div class="left">
       <button id="openFolderBtn" class="btn">Open Folder</button>
+  <button id="loadRosterBtn" class="btn secondary">Load Roster</button>
       <div id="folderPath" class="folder-path"></div>
     </div>
     <div class="center">
@@ -33,6 +34,23 @@
         </div>
       </div>
 
+      <div class="overlay rename-overlay hidden" id="tagOverlay">
+        <div class="rename-card">
+          <div class="rename-label">Tag Players (type jersey number, comma to add multiple, Enter to confirm):</div>
+          <input id="tagInput" type="text" spellcheck="false" autocomplete="off" />
+          <div id="tagSuggestions" class="suggestions"></div>
+          <div class="hint">T to open • Space play/pause • Esc cancel • Enter finish tags • Use number to filter, click to add</div>
+        </div>
+      </div>
+
+      <div class="overlay rename-overlay hidden" id="detailsOverlay">
+        <div class="rename-card">
+          <div class="rename-label">Extra Details (enter descriptor, then Enter to finish):</div>
+          <input id="detailsInput" type="text" spellcheck="false" autocomplete="off" />
+          <div class="hint">Esc to cancel • Leave blank to skip extra details</div>
+        </div>
+      </div>
+
       <div class="controls">
         <div class="row">
           <button id="prevBtn" class="btn">⟵ Prev</button>
@@ -52,7 +70,7 @@
         </div>
 
         <div class="row tips">
-          <span>Shortcuts: ←/→ to navigate • Space to Play/Pause • Enter to rename (then Enter to save) • Esc to cancel rename</span>
+          <span>Shortcuts: Enter tag → details → rename • T tag directly • ←/→ navigate • Space play/pause • Esc cancel</span>
         </div>
       </div>
     </div>

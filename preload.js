@@ -16,5 +16,11 @@ contextBridge.exposeInMainWorld('api', {
   },
   showInFolder: (fullPath) => {
     ipcRenderer.send('show-in-folder', fullPath);
+  },
+  pickRoster: async () => {
+    return await ipcRenderer.invoke('pick-roster');
+  },
+  getRoster: async () => {
+    return await ipcRenderer.invoke('get-roster');
   }
 });

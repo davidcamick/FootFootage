@@ -6,6 +6,39 @@ const fssync = require('fs');
 const { pathToFileURL } = require('url');
 
 let mainWindow;
+let roster = null; // cached roster JSON
+let rosterPath = null; // stored path inside userData
+
+function getRosterStorePath() {
+  return path.join(app.getPath('userData'), 'roster.json');
+}
+
+async function loadRosterFromDisk() {
+  try {
+    const p = getRosterStorePath();
+    if (fssync.existsSync(p)) {
+      const raw = await fs.readFile(p, 'utf8');
+      const data = JSON.parse(raw);
+      if (validateRoster(data)) {
+        roster = data;
+        rosterPath = p;
+      }
+    }
+  } catch (_) {
+    // ignore corrupt roster
+  }
+}
+
+function validateRoster(data) {
+  if (!data || typeof data !== 'object') return false;
+  if (!Array.isArray(data.players)) return false;
+  // light validation; ensure each player has number+name
+  for (const p of data.players) {
+    if (!p || typeof p !== 'object') return false;
+    if (typeof p.number !== 'string' || typeof p.name !== 'string') return false;
+  }
+  return true;
+}
 
 /** Video extensions to include */
 const VIDEO_REGEX = /\.(mp4|mov|m4v|mkv|avi|webm|mts|m2ts)$/i;
@@ -100,6 +133,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  loadRosterFromDisk();
   createWindow();
 
   app.on('activate', function () {
@@ -187,4 +221,45 @@ ipcMain.on('show-in-folder', (_event, fullPath) => {
       shell.showItemInFolder(fullPath);
     }
   } catch {}
+});
+
+/** IPC: pick roster JSON file */
+ipcMain.handle('pick-roster', async () => {
+  try {
+    const res = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select roster JSON',
+      properties: ['openFile'],
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    });
+    if (res.canceled || !res.filePaths || !res.filePaths.length) {
+      return { canceled: true };
+    }
+    const file = res.filePaths[0];
+    const raw = await fs.readFile(file, 'utf8');
+    let data;
+    try { data = JSON.parse(raw); } catch (e) { return { canceled: true, error: 'Invalid JSON' }; }
+    if (!validateRoster(data)) {
+      return { canceled: true, error: 'Roster schema invalid' };
+    }
+    roster = data;
+    rosterPath = getRosterStorePath();
+    // persist a copy independent of original location
+    await fs.writeFile(rosterPath, JSON.stringify(data, null, 2), 'utf8');
+    return { canceled: false, roster: data };
+  } catch (err) {
+    return { canceled: true, error: String(err) };
+  }
+});
+
+/** IPC: get current roster (if any) */
+ipcMain.handle('get-roster', async () => {
+  try {
+    if (!roster) {
+      await loadRosterFromDisk();
+    }
+    if (roster) return { ok: true, roster };
+    return { ok: false, error: 'No roster loaded' };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
 });
