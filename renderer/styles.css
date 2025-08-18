@@ -177,3 +177,27 @@ video {
 .suggestions .num { font-weight: 600; width: 42px; }
 .suggestions .name { flex: 1; }
 .suggestions .pos { opacity: 0.6; font-size: 11px; }
+
+/* Tag pills */
+.tag-pills { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px; }
+.tag-pills .pill {
+  background:#1c2335;
+  border:1px solid var(--border);
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  cursor:default;
+}
+.tag-pills .pill button {
+  background:transparent;
+  color:var(--muted);
+  border:none;
+  cursor:pointer;
+  font-size:14px;
+  line-height:1;
+  padding:0;
+}
+.tag-pills .pill button:hover { color:#fff; }

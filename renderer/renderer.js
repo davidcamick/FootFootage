@@ -23,6 +23,7 @@ const renameInput = document.getElementById('renameInput');
 const tagOverlay = document.getElementById('tagOverlay');
 const tagInput = document.getElementById('tagInput');
 const tagSuggestions = document.getElementById('tagSuggestions');
+const currentTagsEl = document.getElementById('currentTags');
 const detailsOverlay = document.getElementById('detailsOverlay');
 const detailsInput = document.getElementById('detailsInput');
 
@@ -116,6 +117,7 @@ function openTagOverlay() {
   tagOverlay.classList.remove('hidden');
   tagSuggestions.classList.remove('hidden');
   renderSuggestions(filterPlayersByNumber(''));
+  renderCurrentTagPills();
   setTimeout(() => { tagInput.focus(); tagInput.select(); }, 0);
 }
 
@@ -161,8 +163,15 @@ async function performTagRename(file, newBase) {
     return;
   }
   FILES[index] = res.file;
-  loadVideoAt(index, true);
-  showToast('Tagged');
+  const currentIndex = index;
+  let advanced = false;
+  if (currentIndex < FILES.length - 1) {
+    loadVideoAt(currentIndex + 1, true);
+    advanced = true;
+  } else {
+    loadVideoAt(currentIndex, true);
+  }
+  showToast(advanced ? 'Tagged → Next clip' : 'Tagged (last clip)');
   closeTagOverlay();
 }
 
@@ -177,6 +186,16 @@ function addTag(player) {
   if (FILES.length) {
     fileTagCache.set(FILES[index].path, [...currentTags]);
   }
+  renderCurrentTagPills();
+}
+
+function renderCurrentTagPills() {
+  if (!currentTagsEl) return;
+  if (!currentTags.length) {
+    currentTagsEl.innerHTML = '<span style="opacity:.5;font-size:11px;">No players tagged</span>';
+    return;
+  }
+  currentTagsEl.innerHTML = currentTags.map((p,i)=>`<span class="pill" data-i="${i}">#${p.number} ${getLastName(p.name)} <button title="Remove" data-remove="${i}">×</button></span>`).join('');
 }
 
 function showToast(msg, ms = 1800) {
@@ -435,7 +454,7 @@ document.addEventListener('keydown', (e) => {
       let taggedBase = buildTaggedBaseName(baseNoExtra, currentTags);
       if (details) taggedBase = taggedBase + '_' + details;
       closeDetailsOverlay();
-      performTagRename(file, taggedBase);
+  performTagRename(file, taggedBase);
       return;
     }
     if (e.key === 'Escape') {
@@ -464,7 +483,8 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.key === 'Escape') {
       e.preventDefault();
-      closeTagOverlay();
+  // Do not clear tags on Esc; just close
+  closeTagOverlay();
       return;
     }
     return; // other keys handled by input event
@@ -547,7 +567,8 @@ tagSuggestions.addEventListener('click', (e) => {
 
 tagOverlay.addEventListener('click', (e) => {
   if (e.target === tagOverlay) {
-    closeTagOverlay();
+  // Close without clearing tags when clicking backdrop
+  closeTagOverlay();
   }
 });
 
@@ -556,3 +577,19 @@ detailsOverlay.addEventListener('click', (e) => {
     closeDetailsOverlay();
   }
 });
+
+// Tag pill removal
+if (currentTagsEl) {
+  currentTagsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-remove]');
+    if (!btn) return;
+    const idx = Number(btn.getAttribute('data-remove'));
+    if (!Number.isNaN(idx)) {
+      currentTags.splice(idx,1);
+      if (FILES.length) fileTagCache.set(FILES[index].path, [...currentTags]);
+      renderCurrentTagPills();
+      const label = currentTags.map(p => '#' + p.number + ' ' + getLastName(p.name)).join(', ');
+      tagInput.placeholder = label || 'Type jersey number';
+    }
+  });
+}
