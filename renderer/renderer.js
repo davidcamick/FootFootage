@@ -504,9 +504,36 @@ function buildTaggedBaseName(originalBase, tags) {
 
 function filterPlayersByNumber(prefix) {
   if (!ROSTER || !ROSTER.players) return [];
-  if (!prefix) return ROSTER.players.slice(0, 50); // limit
-  const lower = prefix.toLowerCase();
-  return ROSTER.players.filter(p => p.number.toLowerCase().startsWith(lower)).slice(0, 50);
+  const q = String(prefix || '').trim().toLowerCase();
+  if (!q) return ROSTER.players.slice(0, 50); // limit
+  const isNumeric = /^[0-9]+$/.test(q);
+  const scored = [];
+  for (const p of ROSTER.players) {
+    let score = -1;
+    if (isNumeric) {
+      const num = String(p.number || '').toLowerCase();
+      if (num === q) score = 4;
+      else if (num.startsWith(q)) score = 2;
+    } else {
+      const full = String(p.name || '').toLowerCase();
+      const parts = full.split(/\s+/).filter(Boolean);
+      const first = parts[0] || '';
+      const last = parts[parts.length - 1] || '';
+      if (last === q) score = 5; // exact last name best
+      else if (first === q) score = 4;
+      else if (last.startsWith(q)) score = 3;
+      else if (first.startsWith(q)) score = 2;
+      else if (full.includes(q)) score = 1;
+    }
+    if (score >= 0) scored.push({ p, score });
+  }
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const an = parseInt(a.p.number, 10); const bn = parseInt(b.p.number, 10);
+    if (!Number.isNaN(an) && !Number.isNaN(bn) && an !== bn) return an - bn;
+    return String(a.p.name).localeCompare(String(b.p.name));
+  });
+  return scored.slice(0, 50).map(x => x.p);
 }
 
 function renderSuggestions(list) {
@@ -599,7 +626,7 @@ function addTag(player) {
   currentTags = ensureUniqueTags(currentTags);
   const label = currentTags.map(p => '#' + p.number + ' ' + getLastName(p.name)).join(', ');
   tagInput.value = '';
-  tagInput.placeholder = label || 'Type jersey number';
+  tagInput.placeholder = label || 'Type number or name';
   renderSuggestions(filterPlayersByNumber(''));
   // cache current tags per file
   if (FILES.length) {
@@ -1323,7 +1350,7 @@ if (currentTagsEl) {
       if (FILES.length) fileTagCache.set(FILES[index].path, [...currentTags]);
       renderCurrentTagPills();
       const label = currentTags.map(p => '#' + p.number + ' ' + getLastName(p.name)).join(', ');
-      tagInput.placeholder = label || 'Type jersey number';
+  tagInput.placeholder = label || 'Type number or name';
     }
   });
 }
