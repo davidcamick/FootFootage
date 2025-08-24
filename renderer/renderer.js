@@ -6,6 +6,19 @@ const showInFolderBtn = document.getElementById('showInFolderBtn');
 const openDirBtn = document.getElementById('openDirBtn');
 const folderPathEl = document.getElementById('folderPath');
 const fileCounterEl = document.getElementById('fileCounter');
+const toggleListBtn = document.getElementById('toggleListBtn');
+const listPanel = document.getElementById('listPanel');
+const closeListBtn = document.getElementById('closeListBtn');
+const listSearchInput = document.getElementById('listSearchInput');
+const listSortSelect = document.getElementById('listSortSelect');
+const listSortDir = document.getElementById('listSortDir');
+const listSizeMin = document.getElementById('listSizeMin');
+const listSizeMax = document.getElementById('listSizeMax');
+const listHasTagsCheckbox = document.getElementById('listHasTagsCheckbox');
+const listExtContainer = document.getElementById('listExtContainer');
+const fileListContainer = document.getElementById('fileListContainer');
+const listCountEl = document.getElementById('listCountEl');
+const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 
 const videoEl = document.getElementById('video');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -42,6 +55,8 @@ const splashShortcutsContinueBtn = document.getElementById('splashShortcutsConti
 let DIR = null;
 let FILES = [];
 let index = 0;
+let FILES_META = new Map(); // path -> { sizeBytes, mtimeMs, ext }
+let FILTERS = { q: '', sort: 'name', dir: 'asc', sizeMin: null, sizeMax: null, exts: new Set(), hasTags: false };
 
 let isRenaming = false;
 let seeking = false;
@@ -56,8 +71,7 @@ let fileTagCache = new Map(); // path -> array of player objects to allow revisi
 
 function updateSplashVisibility() {
   const haveFiles = FILES && FILES.length > 0;
-  const dismissed = localStorage.getItem('FR_ONBOARD_DONE') === '1';
-  if (haveFiles || dismissed) {
+  if (haveFiles) {
     splashOverlay?.classList.add('hidden');
     document.body.classList.remove('onboarding-active');
   } else {
@@ -87,7 +101,6 @@ function setOnboardStep(n) {
   renderOnboardingStep();
 }
 function finishOnboarding() {
-  try { localStorage.setItem('FR_ONBOARD_DONE', '1'); } catch {}
   splashOverlay?.classList.add('hidden');
   document.body.classList.remove('onboarding-active');
 }
@@ -261,8 +274,8 @@ const BAMA_ROSTER = {
     const out = [];
     for await (const [name, handle] of dirHandle.entries()) {
       if (handle.kind === 'file' && isVideoFileName(name)) {
-        const file = await handle.getFile();
-        out.push({ name, handle, file });
+  const file = await handle.getFile();
+  out.push({ name, handle, file });
       }
     }
     // natural sort
@@ -316,6 +329,7 @@ const BAMA_ROSTER = {
         url,
       };
       WEB.fileByKey.set(key, { handle, dirHandle, url });
+  try { FILES_META.set(key, { sizeBytes: file.size, mtimeMs: file.lastModified, ext: extname(name).toLowerCase() }); } catch {}
       return f;
     }));
   }
@@ -338,8 +352,9 @@ const BAMA_ROSTER = {
       try { URL.revokeObjectURL(entry.url); } catch {}
       const url = fileToUrl(newFile);
       const newKey = getKeyForName(targetName);
-      WEB.fileByKey.delete(fromKey);
+  WEB.fileByKey.delete(fromKey);
       WEB.fileByKey.set(newKey, { handle: newHandle, dirHandle, url });
+  try { const nf = await newHandle.getFile(); FILES_META.delete(fromKey); FILES_META.set(newKey, { sizeBytes: nf.size, mtimeMs: nf.lastModified, ext: extname(targetName).toLowerCase() }); } catch {}
       return {
         name: targetName,
         base: basenameNoExt(targetName),
@@ -363,8 +378,9 @@ const BAMA_ROSTER = {
     const newFile = await newHandle.getFile();
     const url = fileToUrl(newFile);
     const newKey = getKeyForName(targetName);
-    WEB.fileByKey.delete(fromKey);
+  WEB.fileByKey.delete(fromKey);
     WEB.fileByKey.set(newKey, { handle: newHandle, dirHandle, url });
+  try { FILES_META.delete(fromKey); FILES_META.set(newKey, { sizeBytes: newFile.size, mtimeMs: newFile.lastModified, ext: extname(targetName).toLowerCase() }); } catch {}
     return {
       name: targetName,
       base: basenameNoExt(targetName),
@@ -382,6 +398,7 @@ const BAMA_ROSTER = {
     await dirHandle.removeEntry(handle.name, { recursive: false });
     try { URL.revokeObjectURL(url); } catch {}
     WEB.fileByKey.delete(key);
+  FILES_META.delete(key);
   }
 
   // Expose browser api with same shape
@@ -574,6 +591,7 @@ async function performTagRename(file, newBase) {
   }
   showToast(advanced ? 'Tagged → Next clip' : 'Tagged (last clip)');
   closeTagOverlay();
+  try { refreshListUI(); } catch {}
 }
 
 function addTag(player) {
@@ -609,19 +627,164 @@ function showToast(msg, ms = 1800) {
 }
 
 function updateCounter() {
-  // Now show the counter in the progress row (left), where currentNameEl sits
+  // Bottom-left shows clip index (e.g., 1 / N)
   currentNameEl.textContent = `${FILES.length ? index + 1 : 0} / ${FILES.length}`;
 }
 
 function setFilenameUI() {
   if (!FILES.length) {
-    // Now show the filename in the header center; when none, show placeholder
-    fileCounterEl.textContent = 'No file loaded';
+  // Header shows placeholder; bottom-left shows count
+  fileCounterEl.textContent = 'No file loaded';
+  currentNameEl.textContent = '0 / 0';
     return;
   }
   const f = FILES[index];
   fileCounterEl.textContent = f.name;
 }
+
+
+/* ===== List View (Sidebar) ===== */
+function bytesToMB(n) { return n == null ? null : Math.round((n / (1024*1024)) * 10) / 10; }
+function formatMTime(ms) { try { return new Date(ms).toLocaleDateString() } catch { return '' } }
+
+function computeExts(files) {
+  const set = new Set();
+  for (const f of files) {
+    const meta = FILES_META.get(f.path);
+    if (meta && meta.ext) set.add(meta.ext);
+    else if (f.ext) set.add((f.ext || '').toLowerCase());
+  }
+  return Array.from(set).sort();
+}
+
+function renderExtPills() {
+  if (!listExtContainer) return;
+  const exts = computeExts(FILES);
+  if (!exts.length) { listExtContainer.innerHTML = '<span class="muted small">No videos</span>'; return; }
+  listExtContainer.innerHTML = exts.map(e => `<span class="pill ${FILTERS.exts.has(e) ? 'active' : ''}" data-ext="${e}">${e}</span>`).join('');
+}
+
+function applyFilters() {
+  let arr = FILES.map((f, i) => ({ f, i }));
+  const q = (FILTERS.q || '').toLowerCase();
+  if (q) arr = arr.filter(({f}) => f.name.toLowerCase().includes(q));
+  if (FILTERS.exts && FILTERS.exts.size) arr = arr.filter(({f}) => {
+    const meta = FILES_META.get(f.path);
+    const e = (meta?.ext || f.ext || '').toLowerCase();
+    return FILTERS.exts.has(e);
+  });
+  if (FILTERS.sizeMin != null || FILTERS.sizeMax != null) arr = arr.filter(({f}) => {
+    const size = FILES_META.get(f.path)?.sizeBytes;
+    if (size == null) return true;
+    const mb = size / (1024*1024);
+    if (FILTERS.sizeMin != null && mb < FILTERS.sizeMin) return false;
+    if (FILTERS.sizeMax != null && mb > FILTERS.sizeMax) return false;
+    return true;
+  });
+  if (FILTERS.hasTags) arr = arr.filter(({f}) => (fileTagCache.get(f.path) || []).length > 0);
+
+  const dir = FILTERS.dir === 'desc' ? -1 : 1;
+  const sortKey = FILTERS.sort;
+  arr.sort((a, b) => {
+    const A = a.f, B = b.f;
+    if (sortKey === 'name') return dir * A.name.localeCompare(B.name, undefined, { numeric: true, sensitivity: 'base' });
+    if (sortKey === 'ext') return dir * ((A.ext || '').localeCompare(B.ext || ''));
+    if (sortKey === 'size') {
+      const sa = FILES_META.get(A.path)?.sizeBytes || 0;
+      const sb = FILES_META.get(B.path)?.sizeBytes || 0;
+      return dir * (sa - sb);
+    }
+    if (sortKey === 'mtime') {
+      const ma = FILES_META.get(A.path)?.mtimeMs || 0;
+      const mb = FILES_META.get(B.path)?.mtimeMs || 0;
+      return dir * (ma - mb);
+    }
+    return 0;
+  });
+  return arr;
+}
+
+function renderFileList() {
+  if (!fileListContainer) return;
+  const rows = applyFilters();
+  if (listCountEl) listCountEl.textContent = `${rows.length} shown / ${FILES.length} total`;
+  if (!rows.length) { fileListContainer.innerHTML = '<div class="muted small" style="padding:8px;">No files match.</div>'; return; }
+  const activePath = FILES[index]?.path;
+  fileListContainer.innerHTML = rows.map(({f, i}) => {
+    const meta = FILES_META.get(f.path) || {};
+    const sizeMB = bytesToMB(meta.sizeBytes);
+    const hasTags = (fileTagCache.get(f.path) || []).length > 0;
+    return `
+      <div class="file-item ${activePath===f.path ? 'active' : ''}" data-i="${i}" title="${f.name}">
+        <div class="name">${f.name}</div>
+        <div class="meta">
+          <span>${(meta.ext || f.ext || '').toUpperCase().replace('.', '')}</span>
+          ${sizeMB!=null ? `<span>${sizeMB} MB</span>` : ''}
+          ${meta.mtimeMs ? `<span>${formatMTime(meta.mtimeMs)}</span>` : ''}
+          ${hasTags ? `<span style="color:#9fe870;">tagged</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function syncActiveInList() {
+  if (!fileListContainer) return;
+  const items = fileListContainer.querySelectorAll('.file-item');
+  items.forEach(el => el.classList.remove('active'));
+  const activePath = FILES[index]?.path;
+  const row = Array.from(items).find(el => FILES[Number(el.getAttribute('data-i'))]?.path === activePath);
+  if (row) row.classList.add('active');
+}
+
+function refreshListUI() { renderExtPills(); renderFileList(); syncActiveInList(); }
+
+function scheduleListRender() { cancelAnimationFrame(scheduleListRender._id); scheduleListRender._id = requestAnimationFrame(refreshListUI); }
+
+// List sidebar events
+if (toggleListBtn) toggleListBtn.addEventListener('click', () => {
+  const willShow = listPanel.classList.contains('hidden');
+  listPanel.classList.toggle('hidden');
+  // Keep button label stable
+  toggleListBtn.textContent = 'List View';
+  if (willShow) {
+    try { refreshListUI(); } catch {}
+  }
+});
+if (closeListBtn) closeListBtn.addEventListener('click', () => {
+  listPanel.classList.add('hidden');
+  toggleListBtn.textContent = 'List View';
+});
+if (fileListContainer) fileListContainer.addEventListener('click', (e) => {
+  const item = e.target.closest('.file-item');
+  if (!item) return;
+  const i = Number(item.getAttribute('data-i'));
+  if (!Number.isNaN(i)) loadVideoAt(i, true);
+  try { listPanel.classList.add('hidden'); toggleListBtn.textContent = 'List View'; } catch {}
+});
+if (listSearchInput) listSearchInput.addEventListener('input', (e) => { FILTERS.q = e.target.value; scheduleListRender(); });
+if (listSortSelect) listSortSelect.addEventListener('change', (e) => { FILTERS.sort = e.target.value; scheduleListRender(); });
+if (listSortDir) listSortDir.addEventListener('change', (e) => { FILTERS.dir = e.target.value; scheduleListRender(); });
+if (listSizeMin) listSizeMin.addEventListener('input', (e) => { const v = e.target.value; FILTERS.sizeMin = v ? Number(v) : null; scheduleListRender(); });
+if (listSizeMax) listSizeMax.addEventListener('input', (e) => { const v = e.target.value; FILTERS.sizeMax = v ? Number(v) : null; scheduleListRender(); });
+if (listHasTagsCheckbox) listHasTagsCheckbox.addEventListener('change', (e) => { FILTERS.hasTags = !!e.target.checked; scheduleListRender(); });
+if (listExtContainer) listExtContainer.addEventListener('click', (e) => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  const ext = pill.getAttribute('data-ext');
+  if (!ext) return;
+  if (FILTERS.exts.has(ext)) FILTERS.exts.delete(ext); else FILTERS.exts.add(ext);
+  scheduleListRender();
+});
+if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => {
+  FILTERS = { q: '', sort: 'name', dir: 'asc', sizeMin: null, sizeMax: null, exts: new Set(), hasTags: false };
+  if (listSearchInput) listSearchInput.value = '';
+  if (listSortSelect) listSortSelect.value = 'name';
+  if (listSortDir) listSortDir.value = 'asc';
+  if (listSizeMin) listSizeMin.value = '';
+  if (listSizeMax) listSizeMax.value = '';
+  if (listHasTagsCheckbox) listHasTagsCheckbox.checked = false;
+  scheduleListRender();
+});
 
 /* ===== Loading & navigation ===== */
 
@@ -642,6 +805,7 @@ function loadVideoAt(i, keepPaused = true) {
   updateCounter();
   // Update mute button label
   muteBtn.textContent = videoEl.muted ? 'Unmute' : 'Mute';
+  try { syncActiveInList(); } catch {}
 }
 
 function next() {
@@ -704,6 +868,7 @@ async function saveRenameAndAdvance() {
   const updated = res.file;
   // Update the entry in-place
   FILES[index] = updated;
+  try { refreshListUI(); } catch {}
 
   // Exit rename mode
   isRenaming = false;
@@ -790,13 +955,14 @@ openFolderBtn.addEventListener('click', async () => {
   FILES = res.files || [];
   folderPathEl.textContent = DIR || '';
   if (!FILES.length) {
-  fileCounterEl.textContent = 'No video files in this folder.';
-  currentNameEl.textContent = '0 / 0';
+  currentNameEl.textContent = 'No video files in this folder.';
+  fileCounterEl.textContent = '0 / 0';
     videoEl.src = '';
     return;
   }
   loadVideoAt(0, true);
   try { updateSplashVisibility(); } catch {}
+  try { refreshListUI(); } catch {}
 });
 
 showInFolderBtn.addEventListener('click', () => {
@@ -854,14 +1020,15 @@ deleteBtn.addEventListener('click', async () => {
   // Remove from list
   FILES.splice(index, 1);
   if (!FILES.length) {
-  fileCounterEl.textContent = 'No file loaded';
-  currentNameEl.textContent = '0 / 0';
+  currentNameEl.textContent = 'No file loaded';
+  fileCounterEl.textContent = '0 / 0';
     showToast('Deleted. No more files.');
     return;
   }
   if (index >= FILES.length) index = FILES.length - 1;
   loadVideoAt(index, true);
   showToast('Deleted');
+  try { refreshListUI(); } catch {}
 });
 
 videoEl.addEventListener('play', () => (playPauseBtn.textContent = 'Pause'));
@@ -998,6 +1165,14 @@ document.addEventListener('keydown', (e) => {
     return; // other keys handled by input event
   }
 
+  // Close list page with Escape
+  if (!listPanel.classList.contains('hidden') && e.key === 'Escape') {
+    e.preventDefault();
+    listPanel.classList.add('hidden');
+    toggleListBtn.textContent = 'List View';
+    return;
+  }
+
   // Global shortcuts
   if (e.key === 'ArrowRight') {
     e.preventDefault();
@@ -1013,9 +1188,6 @@ document.addEventListener('keydown', (e) => {
       videoEl.pause();
     }
   } else if (e.key === 'Enter') { // new flow: Enter -> tag overlay first
-    e.preventDefault();
-    openTagOverlay();
-  } else if (e.key.toLowerCase() === 't') {
     e.preventDefault();
     openTagOverlay();
   } else if (e.key === 'Delete') {

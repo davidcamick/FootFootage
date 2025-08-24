@@ -12,6 +12,7 @@
     <div class="left">
       <button id="openFolderBtn" class="btn">Open Folder</button>
   <button id="loadRosterBtn" class="btn secondary">Load Roster</button>
+  <button id="toggleListBtn" class="btn secondary">List View</button>
       <div id="folderPath" class="folder-path"></div>
     </div>
     <div class="center">
@@ -81,6 +82,42 @@
   
 
   <div id="toast" class="toast hidden"></div>
+
+  <!-- Separate List View Page -->
+  <aside id="listPanel" class="list-panel hidden" aria-label="List View Page">
+    <div class="list-head">
+      <input id="listSearchInput" type="text" placeholder="Search filename..." spellcheck="false" />
+      <select id="listSortSelect">
+        <option value="name">Name</option>
+        <option value="size">Size</option>
+        <option value="mtime">Modified</option>
+        <option value="ext">Extension</option>
+      </select>
+      <select id="listSortDir">
+        <option value="asc">Asc</option>
+        <option value="desc">Desc</option>
+      </select>
+      <button id="clearFiltersBtn" class="btn secondary">Clear</button>
+      <button id="closeListBtn" class="btn" style="margin-left:auto">Close</button>
+    </div>
+    <div class="list-filters">
+      <div class="field small">
+        <label>Size (MB)</label>
+        <div class="row">
+          <input id="listSizeMin" type="number" inputmode="numeric" min="0" placeholder="min" />
+          <input id="listSizeMax" type="number" inputmode="numeric" min="0" placeholder="max" />
+        </div>
+      </div>
+      <div class="field small">
+        <label>Extensions</label>
+        <div id="listExtContainer" class="ext-pills"></div>
+      </div>
+      <label class="checkbox"><input id="listHasTagsCheckbox" type="checkbox" /> Has tags</label>
+      <div class="spacer"></div>
+      <div id="listCountEl" class="muted small"></div>
+    </div>
+    <div id="fileListContainer" class="file-list"></div>
+  </aside>
 
   <!-- Splash overlay with multi-step onboarding flow -->
   <div id="splashOverlay" class="splash-overlay hidden">
