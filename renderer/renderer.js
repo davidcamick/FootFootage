@@ -43,6 +43,9 @@ let index = 0;
 
 let isRenaming = false;
 let seeking = false;
+let wasPlayingBeforeSeek = false;
+let _seekPointerId = null;
+let _seekRect = null;
 let isTagging = false;
 let isEnteringDetails = false;
 let ROSTER = null; // {team, season, players: []}
@@ -570,16 +573,18 @@ function showToast(msg, ms = 1800) {
 }
 
 function updateCounter() {
-  fileCounterEl.textContent = `${FILES.length ? index + 1 : 0} / ${FILES.length}`;
+  // Now show the counter in the progress row (left), where currentNameEl sits
+  currentNameEl.textContent = `${FILES.length ? index + 1 : 0} / ${FILES.length}`;
 }
 
 function setFilenameUI() {
   if (!FILES.length) {
-    currentNameEl.textContent = 'No file loaded';
+    // Now show the filename in the header center; when none, show placeholder
+    fileCounterEl.textContent = 'No file loaded';
     return;
   }
   const f = FILES[index];
-  currentNameEl.textContent = f.name;
+  fileCounterEl.textContent = f.name;
 }
 
 /* ===== Loading & navigation ===== */
@@ -703,6 +708,21 @@ function seekToPercent(pct) {
   }
 }
 
+// Throttle scrubbing updates to animation frames for smoother seeking
+let _rafSeek = null;
+let _queuedSeekPct = null;
+function requestSeekToPercent(pct) {
+  _queuedSeekPct = pct;
+  if (_rafSeek) return;
+  _rafSeek = requestAnimationFrame(() => {
+    _rafSeek = null;
+    if (_queuedSeekPct == null) return;
+    seekToPercent(_queuedSeekPct);
+    updateSeekUI(); // ensure time labels reflect during scrub
+    _queuedSeekPct = null;
+  });
+}
+
 /* ===== Events ===== */
 
 openFolderBtn.addEventListener('click', async () => {
@@ -715,8 +735,8 @@ openFolderBtn.addEventListener('click', async () => {
   FILES = res.files || [];
   folderPathEl.textContent = DIR || '';
   if (!FILES.length) {
-    currentNameEl.textContent = 'No video files in this folder.';
-    fileCounterEl.textContent = '0 / 0';
+  fileCounterEl.textContent = 'No video files in this folder.';
+  currentNameEl.textContent = '0 / 0';
     videoEl.src = '';
     return;
   }
@@ -779,8 +799,8 @@ deleteBtn.addEventListener('click', async () => {
   // Remove from list
   FILES.splice(index, 1);
   if (!FILES.length) {
-    currentNameEl.textContent = 'No file loaded';
-    fileCounterEl.textContent = '0 / 0';
+  fileCounterEl.textContent = 'No file loaded';
+  currentNameEl.textContent = '0 / 0';
     showToast('Deleted. No more files.');
     return;
   }
@@ -795,13 +815,66 @@ videoEl.addEventListener('loadedmetadata', updateSeekUI);
 videoEl.addEventListener('timeupdate', updateSeekUI);
 videoEl.addEventListener('durationchange', updateSeekUI);
 
-seekEl.addEventListener('mousedown', () => { seeking = true; });
-seekEl.addEventListener('mouseup', () => { seeking = false; });
+seekEl.addEventListener('mousedown', () => {
+  seeking = true;
+  wasPlayingBeforeSeek = !videoEl.paused;
+  // Pause during scrub for frame-accurate preview
+  videoEl.pause();
+});
+seekEl.addEventListener('mouseup', () => {
+  seeking = false;
+  // Resume if it was playing before the scrub
+  if (wasPlayingBeforeSeek) {
+    videoEl.play().catch(() => {});
+  }
+});
 seekEl.addEventListener('input', (e) => {
   seeking = true;
   const pct = Number(e.target.value);
-  seekToPercent(pct);
+  requestSeekToPercent(pct);
 });
+// Pointer/touch support for robust scrubbing across platforms
+seekEl.addEventListener('pointerdown', (e) => {
+  seeking = true;
+  wasPlayingBeforeSeek = !videoEl.paused;
+  videoEl.pause();
+  _seekPointerId = e.pointerId;
+  _seekRect = seekEl.getBoundingClientRect();
+  if (seekEl.setPointerCapture) {
+    try { seekEl.setPointerCapture(e.pointerId); } catch {}
+  }
+  // Immediate update on initial down
+  const pct = Math.max(0, Math.min(100, ((e.clientX - _seekRect.left) / _seekRect.width) * 100));
+  seekEl.value = String(pct);
+  requestSeekToPercent(pct);
+});
+seekEl.addEventListener('pointerup', () => {
+  seeking = false;
+  if (wasPlayingBeforeSeek) {
+    videoEl.play().catch(() => {});
+  }
+  _seekPointerId = null;
+  _seekRect = null;
+});
+// Drive frame updates directly from pointer movement for smooth scrubbing
+window.addEventListener('pointermove', (e) => {
+  if (!seeking) return;
+  if (_seekRect == null) _seekRect = seekEl.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(100, ((e.clientX - _seekRect.left) / _seekRect.width) * 100));
+  seekEl.value = String(pct);
+  requestSeekToPercent(pct);
+});
+seekEl.addEventListener('touchstart', () => {
+  seeking = true;
+  wasPlayingBeforeSeek = !videoEl.paused;
+  videoEl.pause();
+}, { passive: true });
+seekEl.addEventListener('touchend', () => {
+  seeking = false;
+  if (wasPlayingBeforeSeek) {
+    videoEl.play().catch(() => {});
+  }
+}, { passive: true });
 
 document.addEventListener('keydown', (e) => {
   // If typing in rename input, let Enter go through to save

@@ -1,10 +1,6 @@
-# FootFootage
+# FootFootage (Web)
 
-Preview, tag, and rapidly rename footage. Works in Electron and in a Chromium browser via Vite using the File System Access API.
-
-## Run (Electron)
-- npm install
-- npm run dev
+Preview, tag, and rapidly rename footage in a Chromium browser via Vite using the File System Access API.
 
 ## Run (Web / Vite)
 - Requires a Chromium-based browser (Chrome/Edge) for the File System Access API
@@ -12,7 +8,7 @@ Preview, tag, and rapidly rename footage. Works in Electron and in a Chromium br
 - npm run web
 - Open the printed localhost URL, then:
 	- Click "Open Folder" to grant access to a folder of videos (top-level files only)
-	- Use the same tagging/rename flow as Electron
+	- Use the tagging/rename flow
 	- "Reveal in Finder/Explorer" is not available in web mode
 
-Roster JSON is cached to app data in Electron and to localStorage in Web mode.
+Roster JSON is cached to localStorage in Web mode.
