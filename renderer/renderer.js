@@ -30,12 +30,14 @@ const detailsInput = document.getElementById('detailsInput');
 
 const toastEl = document.getElementById('toast');
 const splashOverlay = document.getElementById('splashOverlay');
-const splashRosterStep = document.getElementById('splashRosterStep');
-const splashFootageStep = document.getElementById('splashFootageStep');
 const splashUseBamaBtn = document.getElementById('splashUseBamaBtn');
 const splashImportRosterBtn = document.getElementById('splashImportRosterBtn');
 const splashSkipRosterBtn = document.getElementById('splashSkipRosterBtn');
 const splashFootageOpenBtn = document.getElementById('splashFootageOpenBtn');
+const copyRosterTemplateBtn = document.getElementById('copyRosterTemplateBtn');
+// New onboarding controls
+const splashStartBtn = document.getElementById('splashStartBtn');
+const splashShortcutsContinueBtn = document.getElementById('splashShortcutsContinueBtn');
 
 let DIR = null;
 let FILES = [];
@@ -54,8 +56,40 @@ let fileTagCache = new Map(); // path -> array of player objects to allow revisi
 
 function updateSplashVisibility() {
   const haveFiles = FILES && FILES.length > 0;
-  if (haveFiles) splashOverlay?.classList.add('hidden');
-  else splashOverlay?.classList.remove('hidden');
+  const dismissed = localStorage.getItem('FR_ONBOARD_DONE') === '1';
+  if (haveFiles || dismissed) {
+    splashOverlay?.classList.add('hidden');
+    document.body.classList.remove('onboarding-active');
+  } else {
+    splashOverlay?.classList.remove('hidden');
+    document.body.classList.add('onboarding-active');
+  }
+}
+
+/* ===== Onboarding State ===== */
+let ONBOARD_STEP = 0; // 0..3
+function renderOnboardingStep() {
+  const steps = document.querySelectorAll('.onboard-step');
+  steps.forEach(s => {
+    const n = Number(s.getAttribute('data-step'));
+    if (n === ONBOARD_STEP) s.classList.remove('hidden');
+    else s.classList.add('hidden');
+  });
+  const dots = document.querySelectorAll('.splash-progress .dot');
+  dots.forEach(d => {
+    const n = Number(d.getAttribute('data-step'));
+    d.classList.toggle('active', n === ONBOARD_STEP);
+    d.classList.toggle('done', n < ONBOARD_STEP);
+  });
+}
+function setOnboardStep(n) {
+  ONBOARD_STEP = Math.max(0, Math.min(3, n));
+  renderOnboardingStep();
+}
+function finishOnboarding() {
+  try { localStorage.setItem('FR_ONBOARD_DONE', '1'); } catch {}
+  splashOverlay?.classList.add('hidden');
+  document.body.classList.remove('onboarding-active');
 }
 
 // Built-in Alabama roster
@@ -255,9 +289,11 @@ const BAMA_ROSTER = {
   function validateRosterWeb(data) {
     if (!data || typeof data !== 'object') return false;
     if (!Array.isArray(data.players)) return false;
+    // Optional top-level: team, season, source, notes
     for (const p of data.players) {
       if (!p || typeof p !== 'object') return false;
       if (typeof p.number !== 'string' || typeof p.name !== 'string') return false;
+      // Optional fields are allowed: position, class, height, weight_lbs, hometown, previous_school
     }
     return true;
   }
@@ -723,6 +759,25 @@ function requestSeekToPercent(pct) {
   });
 }
 
+/* ===== Frame stepping ===== */
+function stepFrame(direction = 1) {
+  const d = videoEl.duration || 0;
+  if (d <= 0) return;
+  // Use a reasonable default frame duration; true FPS isn't exposed in HTMLVideoElement
+  const frameDur = 1 / 30; // ~33.33ms
+  const wasPaused = videoEl.paused;
+  // Pause to ensure frame-accurate preview
+  videoEl.pause();
+  const epsilon = 0.0005;
+  const target = Math.max(0, Math.min(d - epsilon, (videoEl.currentTime || 0) + direction * frameDur));
+  videoEl.currentTime = target;
+  updateSeekUI();
+  // Do not auto-resume; user is likely scrubbing
+  if (!wasPaused) {
+    // keep paused until user presses play or releases modifier
+  }
+}
+
 /* ===== Events ===== */
 
 openFolderBtn.addEventListener('click', async () => {
@@ -877,6 +932,12 @@ seekEl.addEventListener('touchend', () => {
 }, { passive: true });
 
 document.addEventListener('keydown', (e) => {
+  // Frame-by-frame scrubbing with Shift + Arrow keys
+  if (e.shiftKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    e.preventDefault();
+    stepFrame(e.key === 'ArrowRight' ? +1 : -1);
+    return;
+  }
   // If typing in rename input, let Enter go through to save
   if (isRenaming) {
     if (e.key === 'Enter') {
@@ -965,13 +1026,16 @@ document.addEventListener('keydown', (e) => {
 
 /* Startup: wire splash and update visibility */
 window.addEventListener('DOMContentLoaded', async () => {
+  // Onboarding buttons
+  if (splashStartBtn) splashStartBtn.addEventListener('click', () => setOnboardStep(1));
+  if (splashShortcutsContinueBtn) splashShortcutsContinueBtn.addEventListener('click', () => setOnboardStep(3));
+
   // Splash: use built-in Bama roster
   if (splashUseBamaBtn) splashUseBamaBtn.addEventListener('click', () => {
     ROSTER = BAMA_ROSTER;
     try { localStorage.setItem('FR_ROSTER', JSON.stringify(ROSTER)); } catch {}
     showToast('Loaded Alabama roster');
-    splashRosterStep?.classList.add('hidden');
-    splashFootageStep?.classList.remove('hidden');
+    setOnboardStep(2);
   });
   // Splash: import custom roster
   if (splashImportRosterBtn) splashImportRosterBtn.addEventListener('click', async () => {
@@ -980,18 +1044,53 @@ window.addEventListener('DOMContentLoaded', async () => {
       ROSTER = res.roster;
       showToast('Roster loaded');
     }
-    splashRosterStep?.classList.add('hidden');
-    splashFootageStep?.classList.remove('hidden');
+    setOnboardStep(2);
   });
   // Splash: skip roster
-  if (splashSkipRosterBtn) splashSkipRosterBtn.addEventListener('click', () => {
-    splashRosterStep?.classList.add('hidden');
-    splashFootageStep?.classList.remove('hidden');
-  });
+  if (splashSkipRosterBtn) splashSkipRosterBtn.addEventListener('click', () => setOnboardStep(2));
 
   // Footage import
   if (splashFootageOpenBtn) splashFootageOpenBtn.addEventListener('click', () => openFolderBtn.click());
+  // Copy roster template
+  if (copyRosterTemplateBtn) copyRosterTemplateBtn.addEventListener('click', async () => {
+    const template = {
+      team: "",
+      season: 2025,
+      source: "",
+      players: [
+        {
+          number: "",
+          name: "",
+          position: "",
+          class: "",
+          height: "",
+          weight_lbs: "",
+          hometown: "",
+          previous_school: ""
+        }
+      ],
+      notes: ""
+    };
+    const text = JSON.stringify(template, null, 2);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      showToast('Roster template copied to clipboard');
+    } catch (e) {
+      showToast('Copy failed');
+    }
+  });
 
+  // Initial onboarding state
+  setOnboardStep(0);
   try { updateSplashVisibility(); } catch {}
 });
 

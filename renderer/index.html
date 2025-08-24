@@ -82,27 +82,73 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Splash overlay with two-step onboarding -->
-  <div id="splashOverlay" class="splash-overlay">
+  <!-- Splash overlay with multi-step onboarding flow -->
+  <div id="splashOverlay" class="splash-overlay hidden">
     <div class="splash-card">
-      <h1 class="splash-title">Welcome to the Footage Renamer</h1>
-      <p class="splash-sub">A tool built by David Camick for Alabama Football</p>
-
-      <div id="splashRosterStep" style="margin-top:12px;">
-        <p class="splash-sub" style="margin-bottom:8px;">Choose a roster option</p>
-        <div class="row" style="justify-content:center; gap:12px; flex-wrap:wrap;">
-          <button id="splashUseBamaBtn" class="btn">Use Alabama Roster</button>
-          <button id="splashImportRosterBtn" class="btn secondary">Import Custom Roster</button>
-          <button id="splashSkipRosterBtn" class="btn secondary">Skip</button>
-        </div>
+      <div class="splash-progress">
+        <span class="dot" data-step="0"></span>
+        <span class="dot" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
       </div>
 
-  <div id="splashFootageStep" class="hidden" style="margin-top:16px;">
-        <p class="splash-sub" style="margin-bottom:8px;">Import footage to start</p>
-        <div class="row" style="justify-content:center; gap:12px;">
+      <div class="onboard-steps">
+        <!-- Step 1: Welcome -->
+        <section class="onboard-step" data-step="0">
+          <h1 class="splash-title">Welcome to Footage Renamer</h1>
+          <p class="splash-sub">Built by David Camick to label football footage in minutes instead of hours</p>
+          <ul class="splash-list">
+            <li>Load a roster for smart tag suggestions.</li>
+            <li>Type jersey numbers to tag; Enter to confirm.</li>
+            <li>Auto-append last names to filenames.</li>
+          </ul>
+          <div class="splash-actions">
+            <button id="splashStartBtn" class="btn">Get Started</button>
+          </div>
+        </section>
+
+        <!-- Step 2: Roster -->
+        <section class="onboard-step" data-step="1">
+          <h2 class="splash-title">Load a roster (optional)</h2>
+          <p class="splash-sub">Choose the built-in roster or import your own JSON.</p>
+          <div class="splash-buttons" style="justify-content:center; gap:14px; flex-wrap:wrap;">
+            <button id="splashImportRosterBtn" class="btn">Import Custom Roster</button>
+            <button id="splashSkipRosterBtn" class="btn secondary">Skip</button>
+          </div>
+          <div class="splash-actions" style="margin-top:8px;">
+            <button id="copyRosterTemplateBtn" class="btn secondary">Copy Roster Template</button>
+          </div>
+          <div class="splash-buttons" style="justify-content:center; gap:14px; flex-wrap:wrap; margin-top:12px;">
+            <button id="splashUseBamaBtn" class="btn">Use Alabama Roster</button>
+          </div>
+        </section>
+
+        <!-- Step 3: Shortcuts -->
+        <section class="onboard-step" data-step="2">
+          <h2 class="splash-title">Fast controls</h2>
+          <div class="shortcuts-grid">
+            <div><span class="kbd">Space</span> Play / Pause</div>
+            <div><span class="kbd">←/→</span> Previous / Next clip</div>
+            <div><span class="kbd">T</span> Tag players</div>
+            <div><span class="kbd">Enter</span> Confirm tags → details → rename</div>
+            <div><span class="kbd">Esc</span> Cancel current overlay</div>
+            <div><span class="kbd">⌘</span> + Scroll Zoom, Drag to Pan, Double‑click reset</div>
+          </div>
+          <div class="splash-actions">
+            <button id="splashShortcutsContinueBtn" class="btn">Continue</button>
+          </div>
+        </section>
+
+        <!-- Step 4: Pick Footage -->
+        <section class="onboard-step" data-step="3">
+          <h2 class="splash-title">Import your footage</h2>
+          <p class="splash-sub">Pick a folder with video files to begin.</p>
           <button id="splashFootageOpenBtn" class="btn">Open Footage Folder</button>
-        </div>
+          <p class="splash-hint">You can also use the “Open Folder” button in the top bar later.</p>
+        </section>
       </div>
+
+      
     </div>
   </div>
 
