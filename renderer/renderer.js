@@ -41,6 +41,221 @@ let ROSTER = null; // {team, season, players: []}
 let currentTags = []; // array of player objects currently tagged for the active file (not persisted globally)
 let fileTagCache = new Map(); // path -> array of player objects to allow revisiting
 
+/* ===== Browser (non-Electron) API polyfill ===== */
+// If preload (Electron) didn't inject window.api, we create a browser version
+// using the File System Access API (Chromium). This allows running via a web server
+// (e.g., Vite) with nearly identical functionality.
+(function setupWebApiPolyfill() {
+  if (window.api) return; // Electron path
+
+  const isFSAvailable = typeof window.showDirectoryPicker === 'function';
+  const WEB = {
+    dirHandle: null,
+    // Map key -> { handle, dirHandle, url }
+    fileByKey: new Map(),
+  };
+
+  function extname(name) {
+    const i = name.lastIndexOf('.');
+    return i >= 0 ? name.slice(i) : '';
+  }
+
+  function basenameNoExt(name) {
+    const i = name.lastIndexOf('.');
+    return i >= 0 ? name.slice(0, i) : name;
+  }
+
+  function isVideoFileName(name) {
+    return /\.(mp4|mov|m4v|mkv|avi|webm|mts|m2ts)$/i.test(name);
+  }
+
+  function fileToUrl(file) {
+    try { return URL.createObjectURL(file); } catch { return ''; }
+  }
+
+  async function listTopLevelVideos(dirHandle) {
+    const out = [];
+    for await (const [name, handle] of dirHandle.entries()) {
+      if (handle.kind === 'file' && isVideoFileName(name)) {
+        const file = await handle.getFile();
+        out.push({ name, handle, file });
+      }
+    }
+    // natural sort
+    out.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    return out;
+  }
+
+  async function uniqueName(dirHandle, base, ext) {
+    let candidate = base + ext;
+    let i = 1;
+    while (true) {
+      try {
+        // If it exists, getFileHandle will succeed
+        await dirHandle.getFileHandle(candidate, { create: false });
+        candidate = `${base}-${i}${ext}`;
+        i++;
+      } catch {
+        // Not found => unique
+        return candidate;
+      }
+    }
+  }
+
+  function validateRosterWeb(data) {
+    if (!data || typeof data !== 'object') return false;
+    if (!Array.isArray(data.players)) return false;
+    for (const p of data.players) {
+      if (!p || typeof p !== 'object') return false;
+      if (typeof p.number !== 'string' || typeof p.name !== 'string') return false;
+    }
+    return true;
+  }
+
+  function getKeyForName(name) { return name; }
+
+  // Build the FILES array result expected by the app from a directory handle
+  async function buildFiles(dirHandle) {
+    const raw = await listTopLevelVideos(dirHandle);
+    WEB.fileByKey.clear();
+    return Promise.all(raw.map(async ({ name, handle, file }) => {
+      const key = getKeyForName(name);
+      const url = fileToUrl(file);
+      const f = {
+        name,
+        base: basenameNoExt(name),
+        ext: extname(name),
+        dir: '',
+        path: key, // synthetic key in web mode
+        url,
+      };
+      WEB.fileByKey.set(key, { handle, dirHandle, url });
+      return f;
+    }));
+  }
+
+  async function webRename(fromKey, newBase) {
+    if (!WEB.dirHandle) throw new Error('No directory');
+    const entry = WEB.fileByKey.get(fromKey);
+    if (!entry) throw new Error('File not found');
+    const { handle, dirHandle } = entry;
+    const oldName = handle.name;
+    const ext = extname(oldName);
+    const targetName = await uniqueName(dirHandle, newBase, ext);
+
+    // Prefer native move/rename if supported
+    if (typeof handle.move === 'function') {
+      await handle.move(dirHandle, targetName);
+      const newHandle = await dirHandle.getFileHandle(targetName, { create: false });
+      const newFile = await newHandle.getFile();
+      // cleanup old URL
+      try { URL.revokeObjectURL(entry.url); } catch {}
+      const url = fileToUrl(newFile);
+      const newKey = getKeyForName(targetName);
+      WEB.fileByKey.delete(fromKey);
+      WEB.fileByKey.set(newKey, { handle: newHandle, dirHandle, url });
+      return {
+        name: targetName,
+        base: basenameNoExt(targetName),
+        ext: extname(targetName),
+        dir: '',
+        path: newKey,
+        url,
+      };
+    }
+
+    // Fallback: copy to new file then remove old
+    const newHandle = await dirHandle.getFileHandle(targetName, { create: true });
+    const writable = await newHandle.createWritable({ keepExistingData: false });
+    const readFile = await handle.getFile();
+    await writable.write(await readFile.arrayBuffer());
+    await writable.close();
+    // remove old
+    await dirHandle.removeEntry(oldName, { recursive: false });
+    // update map
+    try { URL.revokeObjectURL(entry.url); } catch {}
+    const newFile = await newHandle.getFile();
+    const url = fileToUrl(newFile);
+    const newKey = getKeyForName(targetName);
+    WEB.fileByKey.delete(fromKey);
+    WEB.fileByKey.set(newKey, { handle: newHandle, dirHandle, url });
+    return {
+      name: targetName,
+      base: basenameNoExt(targetName),
+      ext: extname(targetName),
+      dir: '',
+      path: newKey,
+      url,
+    };
+  }
+
+  async function webDelete(key) {
+    const entry = WEB.fileByKey.get(key);
+    if (!entry) throw new Error('File not found');
+    const { handle, dirHandle, url } = entry;
+    await dirHandle.removeEntry(handle.name, { recursive: false });
+    try { URL.revokeObjectURL(url); } catch {}
+    WEB.fileByKey.delete(key);
+  }
+
+  // Expose browser api with same shape
+  window.api = {
+    pickFolder: async () => {
+      if (!isFSAvailable) {
+        return { canceled: true, error: 'File System Access API not supported' };
+      }
+      try {
+        const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        WEB.dirHandle = dirHandle;
+        const files = await buildFiles(dirHandle);
+        return { canceled: false, dir: dirHandle.name || 'Selected Folder', files };
+      } catch (e) {
+        return { canceled: true };
+      }
+    },
+    renameFile: async (fromPath, newBase) => {
+      try {
+        const file = await webRename(fromPath, newBase);
+        return { ok: true, file };
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
+    },
+    deleteFile: async (fullPath) => {
+      try { await webDelete(fullPath); return { ok: true }; } catch (e) { return { ok: false, error: String(e) }; }
+    },
+    confirmDelete: async (fileName) => {
+      try { return { confirmed: window.confirm(`Delete this file?\n${fileName}`) }; } catch (e) { return { confirmed: false, error: String(e) }; }
+    },
+    showInFolder: (_fullPath) => {
+      // Not available on the web; no-op
+    },
+    pickRoster: async () => {
+      try {
+        if (typeof window.showOpenFilePicker !== 'function') {
+          return { canceled: true, error: 'File Picker not supported' };
+        }
+        const [h] = await window.showOpenFilePicker({ multiple: false, types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+        if (!h) return { canceled: true };
+        const file = await h.getFile();
+        const text = await file.text();
+        let data; try { data = JSON.parse(text); } catch { return { canceled: true, error: 'Invalid JSON' }; }
+        if (!validateRosterWeb(data)) return { canceled: true, error: 'Roster schema invalid' };
+        try { localStorage.setItem('FR_ROSTER', JSON.stringify(data)); } catch {}
+        return { canceled: false, roster: data };
+      } catch (e) {
+        return { canceled: true };
+      }
+    },
+    getRoster: async () => {
+      try { const raw = localStorage.getItem('FR_ROSTER'); if (!raw) return { ok: false, error: 'No roster loaded' }; const roster = JSON.parse(raw); return { ok: true, roster }; } catch (e) { return { ok: false, error: String(e) }; }
+    }
+  };
+
+  // Hide unsupported UI affordances in web mode
+  try { document.getElementById('showInFolderBtn').style.display = 'none'; } catch {}
+})();
+
 /* ===== Utilities ===== */
 
 function formatTime(s) {

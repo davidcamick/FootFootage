@@ -1,0 +1,1157 @@
+{
+  "team": "Alabama Crimson Tide",
+  "season": 2025,
+  "players": [
+    {
+      "number": "0",
+      "name": "AK Dear",
+      "position": "RB",
+      "height": "6' 1\"",
+      "weight_lbs": "212",
+      "class": "Fr.",
+      "hometown": "Quitman, Miss. / Quitman"
+    },
+    {
+      "number": "0",
+      "name": "Deontae Lawson",
+      "position": "LB",
+      "height": "6' 2\"",
+      "weight_lbs": "228",
+      "class": "R-Sr.",
+      "hometown": "Mobile, Ala. / Mobile Christian"
+    },
+    {
+      "number": "1",
+      "name": "Isaiah Horton",
+      "position": "WR",
+      "height": "6' 4\"",
+      "weight_lbs": "208",
+      "class": "R-Jr.",
+      "hometown": "Nashville, Tenn. / Oakland",
+      "previous_school": "Miami"
+    },
+    {
+      "number": "1",
+      "name": "Domani Jackson",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "196",
+      "class": "Sr.",
+      "hometown": "San Diego, Calif. / Mater Dei",
+      "previous_school": "USC"
+    },
+    {
+      "number": "2",
+      "name": "Zabien Brown",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "192",
+      "class": "So.",
+      "hometown": "Santa Ana, Calif. / Mater Dei"
+    },
+    {
+      "number": "2",
+      "name": "Ryan Williams",
+      "position": "WR",
+      "height": "6' 0\"",
+      "weight_lbs": "178",
+      "class": "So.",
+      "hometown": "Mobile, Ala. / Saraland"
+    },
+    {
+      "number": "3",
+      "name": "Jaylen Mbakwe",
+      "position": "WR",
+      "height": "5' 11\"",
+      "weight_lbs": "190",
+      "class": "So.",
+      "hometown": "Clay, Ala. / Clay-Chalkville"
+    },
+    {
+      "number": "3",
+      "name": "Keon Sabb",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "204",
+      "class": "R-Jr.",
+      "hometown": "Glassboro, N.J. / IMG Academy",
+      "previous_school": "Michigan"
+    },
+    {
+      "number": "4",
+      "name": "Daniel Hill",
+      "position": "RB",
+      "height": "6' 1\"",
+      "weight_lbs": "244",
+      "class": "So.",
+      "hometown": "Meridian, Miss. / Meridian"
+    },
+    {
+      "number": "4",
+      "name": "Qua Russaw",
+      "position": "LB",
+      "height": "6' 2\"",
+      "weight_lbs": "243",
+      "class": "R-So.",
+      "hometown": "Montgomery, Ala. / Carver"
+    },
+    {
+      "number": "5",
+      "name": "Germie Bernard",
+      "position": "WR",
+      "height": "6' 1\"",
+      "weight_lbs": "204",
+      "class": "Sr.",
+      "hometown": "Las Vegas, Nev. / Liberty",
+      "previous_school": "Michigan State / Washington"
+    },
+    {
+      "number": "5",
+      "name": "Dijon Lee Jr.",
+      "position": "DB",
+      "height": "6' 4\"",
+      "weight_lbs": "202",
+      "class": "Fr.",
+      "hometown": "Carson, Calif. / Mission Viejo"
+    },
+    {
+      "number": "6",
+      "name": "Aeryn Hampton",
+      "position": "WR",
+      "height": "5' 10\"",
+      "weight_lbs": "195",
+      "class": "R-Fr.",
+      "hometown": "Daingerfield, Texas / Daingerfield"
+    },
+    {
+      "number": "6",
+      "name": "Kameron Howard",
+      "position": "DB",
+      "height": "5' 11\"",
+      "weight_lbs": "195",
+      "class": "R-So.",
+      "hometown": "Clinton, Md. / Saint Frances Academy",
+      "previous_school": "Charlotte"
+    },
+    {
+      "number": "7",
+      "name": "Cole Adams",
+      "position": "WR",
+      "height": "5' 10\"",
+      "weight_lbs": "183",
+      "class": "R-So.",
+      "hometown": "Owasso, Okla. / Owasso"
+    },
+    {
+      "number": "7",
+      "name": "DaShawn Jones",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "190",
+      "class": "R-Sr.",
+      "hometown": "Baltimore, Md. / Mount Saint Joseph",
+      "previous_school": "Wake Forest"
+    },
+    {
+      "number": "8",
+      "name": "Jalen Hale",
+      "position": "WR",
+      "height": "6' 1\"",
+      "weight_lbs": "197",
+      "class": "R-So.",
+      "hometown": "Longview, Texas / Longview"
+    },
+    {
+      "number": "8",
+      "name": "Justin Hill",
+      "position": "LB",
+      "height": "6' 3\"",
+      "weight_lbs": "242",
+      "class": "Fr.",
+      "hometown": "Cincinnati, Ohio / Winton Woods"
+    },
+    {
+      "number": "9",
+      "name": "Cam Calhoun",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "180",
+      "class": "R-So.",
+      "hometown": "Cincinnati, Ohio / Winton Woods",
+      "previous_school": "Michigan / Utah"
+    },
+    {
+      "number": "9",
+      "name": "Richard Young",
+      "position": "RB",
+      "height": "5' 11\"",
+      "weight_lbs": "212",
+      "class": "R-So.",
+      "hometown": "Lehigh Acres, Fla. / Lehigh Senior"
+    },
+    {
+      "number": "10",
+      "name": "Justin Jefferson",
+      "position": "LB",
+      "height": "6' 1\"",
+      "weight_lbs": "227",
+      "class": "R-Sr.",
+      "hometown": "Memphis, Tenn. / Bartlett",
+      "previous_school": "Pearl River C.C."
+    },
+    {
+      "number": "10",
+      "name": "Austin Mack",
+      "position": "QB",
+      "height": "6' 6\"",
+      "weight_lbs": "235",
+      "class": "R-So.",
+      "hometown": "Loomis, Calif. / Folsom",
+      "previous_school": "Washington"
+    },
+    {
+      "number": "11",
+      "name": "Jordan Renaud",
+      "position": "DL",
+      "height": "6' 4\"",
+      "weight_lbs": "265",
+      "class": "R-So.",
+      "hometown": "Sarasota, Fla. / Tyler Legacy"
+    },
+    {
+      "number": "11",
+      "name": "Rico Scott",
+      "position": "WR",
+      "height": "6' 0\"",
+      "weight_lbs": "196",
+      "class": "R-Fr.",
+      "hometown": "Harrisburg, Pa. / Bishop McDevitt"
+    },
+    {
+      "number": "12",
+      "name": "Zavier Mincey",
+      "position": "DB",
+      "height": "6' 3\"",
+      "weight_lbs": "205",
+      "class": "So.",
+      "hometown": "Daytona Beach, Fla. / Mainland"
+    },
+    {
+      "number": "12",
+      "name": "Keelon Russell",
+      "position": "QB",
+      "height": "6' 3\"",
+      "weight_lbs": "194",
+      "class": "Fr.",
+      "hometown": "Duncanville, Texas / Duncanville"
+    },
+    {
+      "number": "13",
+      "name": "John Gazzaniga",
+      "position": "QB",
+      "height": "6' 7\"",
+      "weight_lbs": "252",
+      "class": "Fr.",
+      "hometown": "Rancho Santa Margarita, Calif. / Rancho Santa Margarita"
+    },
+    {
+      "number": "13",
+      "name": "Ivan Taylor",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "194",
+      "class": "Fr.",
+      "hometown": "Winter Garden, Fla. / West Orange"
+    },
+    {
+      "number": "14",
+      "name": "Fatutoa Henry",
+      "position": "DL",
+      "height": "6' 4\"",
+      "weight_lbs": "268",
+      "class": "R-Jr.",
+      "hometown": "Lawndale, Calif. / Leuzinger",
+      "previous_school": "Oklahoma / Cerritos C.C."
+    },
+    {
+      "number": "14",
+      "name": "Marshall Pritchett",
+      "position": "TE",
+      "height": "6' 5\"",
+      "weight_lbs": "248",
+      "class": "Fr.",
+      "hometown": "Charleston, S.C. / Rabun Gap-Nacoochee School"
+    },
+    {
+      "number": "15",
+      "name": "Duke Johnson II",
+      "position": "LB",
+      "height": "6' 1\"",
+      "weight_lbs": "225",
+      "class": "Fr.",
+      "hometown": "Eastman, Ga. / Dodge County"
+    },
+    {
+      "number": "15",
+      "name": "Ty Simpson",
+      "position": "QB",
+      "height": "6' 2\"",
+      "weight_lbs": "208",
+      "class": "R-Jr.",
+      "hometown": "Martin, Tenn. / Westview"
+    },
+    {
+      "number": "16",
+      "name": "Cade Carruth",
+      "position": "QB",
+      "height": "6' 1\"",
+      "weight_lbs": "215",
+      "class": "Sr.",
+      "hometown": "Trussville, Ala. / Hewitt-Trussville"
+    },
+    {
+      "number": "16",
+      "name": "Red Morgan",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "185",
+      "class": "So.",
+      "hometown": "Phenix City, Ala. / Central"
+    },
+    {
+      "number": "17",
+      "name": "Lotzeir Brooks",
+      "position": "WR",
+      "height": "5' 9\"",
+      "weight_lbs": "191",
+      "class": "Fr.",
+      "hometown": "Millville, N.J. / Millville"
+    },
+    {
+      "number": "17",
+      "name": "Kelby Collins",
+      "position": "DL",
+      "height": "6' 4\"",
+      "weight_lbs": "275",
+      "class": "Jr.",
+      "hometown": "Gardendale, Ala. / Gardendale",
+      "previous_school": "Florida"
+    },
+    {
+      "number": "18",
+      "name": "Bray Hubbard",
+      "position": "DB",
+      "height": "6' 2\"",
+      "weight_lbs": "213",
+      "class": "Jr.",
+      "hometown": "Ocean Springs, Miss. / Ocean Springs"
+    },
+    {
+      "number": "19",
+      "name": "John Cooper",
+      "position": "QB",
+      "height": "6' 2\"",
+      "weight_lbs": "195",
+      "class": "So.",
+      "hometown": "Mountain Brook, Ala. / Mountain Brook"
+    },
+    {
+      "number": "19",
+      "name": "Chuck McDonald III",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "194",
+      "class": "Fr.",
+      "hometown": "Santa Ana, Calif. / Mater Dei"
+    },
+    {
+      "number": "20",
+      "name": "Jah-Marien Latham",
+      "position": "LB",
+      "height": "6' 3\"",
+      "weight_lbs": "262",
+      "class": "Gr.",
+      "hometown": "Reform, Ala. / Pickens County"
+    },
+    {
+      "number": "20",
+      "name": "Dre Washington",
+      "position": "RB",
+      "height": "5' 9\"",
+      "weight_lbs": "216",
+      "class": "R-Sr.",
+      "hometown": "Hemphill, Texas / Hemphill",
+      "previous_school": "Louisiana"
+    },
+    {
+      "number": "21",
+      "name": "Dre Kirkpatrick Jr.",
+      "position": "DB",
+      "height": "5' 11\"",
+      "weight_lbs": "202",
+      "class": "So.",
+      "hometown": "Gadsden, Ala. / Gadsden City"
+    },
+    {
+      "number": "22",
+      "name": "LT Overton",
+      "position": "DL",
+      "height": "6' 5\"",
+      "weight_lbs": "278",
+      "class": "Sr.",
+      "hometown": "Milton, Ga. / Milton",
+      "previous_school": "Texas A&M"
+    },
+    {
+      "number": "23",
+      "name": "MJ Chirgwin",
+      "position": "WR",
+      "height": "6' 0\"",
+      "weight_lbs": "190",
+      "class": "R-Sr.",
+      "hometown": "Huntington Beach, Calif. / Huntington Beach"
+    },
+    {
+      "number": "23",
+      "name": "James Smith",
+      "position": "DL",
+      "height": "6' 3\"",
+      "weight_lbs": "297",
+      "class": "Jr.",
+      "hometown": "Montgomery, Ala. / Carver"
+    },
+    {
+      "number": "24",
+      "name": "Noah Carter",
+      "position": "LB",
+      "height": "6' 4\"",
+      "weight_lbs": "243",
+      "class": "R-Fr.",
+      "hometown": "Peoria, Ariz. / Centennial"
+    },
+    {
+      "number": "25",
+      "name": "Steve Bolo Mboumoua",
+      "position": "DL",
+      "height": "6' 4\"",
+      "weight_lbs": "302",
+      "class": "So.",
+      "hometown": "Saint Augustin de Desmaures, Quebec / Notre Dame de Foy",
+      "previous_school": "Southwest Mississippi C.C."
+    },
+    {
+      "number": "26",
+      "name": "Luke Metz",
+      "position": "LB",
+      "height": "6' 3\"",
+      "weight_lbs": "230",
+      "class": "Fr.",
+      "hometown": "Hoschton, Ga. / Mill Creek"
+    },
+    {
+      "number": "26",
+      "name": "Jam Miller",
+      "position": "RB",
+      "height": "5' 10\"",
+      "weight_lbs": "221",
+      "class": "Sr.",
+      "hometown": "Tyler, Texas / Tyler Legacy"
+    },
+    {
+      "number": "27",
+      "name": "Michael Lorino III",
+      "position": "RB",
+      "height": "6' 0\"",
+      "weight_lbs": "190",
+      "class": "Sr.",
+      "hometown": "Birmingham, Ala. / Mountain Brook"
+    },
+    {
+      "number": "27",
+      "name": "Walter Sansing III",
+      "position": "DB",
+      "height": "5' 10\"",
+      "weight_lbs": "180",
+      "class": "Jr.",
+      "hometown": "Homewood, Ala. / Homewood"
+    },
+    {
+      "number": "28",
+      "name": "Kevin Riley",
+      "position": "RB",
+      "height": "5' 11\"",
+      "weight_lbs": "191",
+      "class": "R-Fr.",
+      "hometown": "Northport, Ala. / Tuscaloosa County"
+    },
+    {
+      "number": "28",
+      "name": "Peyton Yates",
+      "position": "DB",
+      "height": "5' 10\"",
+      "weight_lbs": "190",
+      "class": "Sr.",
+      "hometown": "Eads, Tenn. / Briarcrest Christian"
+    },
+    {
+      "number": "29",
+      "name": "Fredrick Moore",
+      "position": "RB",
+      "height": "5' 9\"",
+      "weight_lbs": "175",
+      "class": "So.",
+      "hometown": "Cypress, Texas / Bridgeland"
+    },
+    {
+      "number": "29",
+      "name": "Kolby Peavy",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "190",
+      "class": "Jr.",
+      "hometown": "Monroeville, Ala. / Excel"
+    },
+    {
+      "number": "30",
+      "name": "Cayden Jones",
+      "position": "LB",
+      "height": "6' 4\"",
+      "weight_lbs": "228",
+      "class": "So.",
+      "hometown": "Asheville, N.C. / Christ School"
+    },
+    {
+      "number": "30",
+      "name": "Derek Meadows",
+      "position": "WR",
+      "height": "6' 5\"",
+      "weight_lbs": "212",
+      "class": "Fr.",
+      "hometown": "Las Vegas, Nev. / Bishop Gorman"
+    },
+    {
+      "number": "31",
+      "name": "Keon Keeley",
+      "position": "DL",
+      "height": "6' 5\"",
+      "weight_lbs": "282",
+      "class": "R-So.",
+      "hometown": "Tampa, Fla. / Berkeley Prep"
+    },
+    {
+      "number": "31",
+      "name": "Cooper Mollison",
+      "position": "WR",
+      "height": "5' 10\"",
+      "weight_lbs": "185",
+      "class": "So.",
+      "hometown": "Vestavia Hills, Ala. / Vestavia Hills"
+    },
+    {
+      "number": "31",
+      "name": "Conor Talty",
+      "position": "PK",
+      "height": "6' 1\"",
+      "weight_lbs": "195",
+      "class": "R-So.",
+      "hometown": "Chicago, Ill. / Saint Rita"
+    },
+    {
+      "number": "32",
+      "name": "Alex Asparuhov",
+      "position": "P",
+      "height": "6' 3\"",
+      "weight_lbs": "200",
+      "class": "Fr.",
+      "hometown": "Fresno, Calif. / San Joaquin Memorial"
+    },
+    {
+      "number": "32",
+      "name": "Griffin Hanson",
+      "position": "DB",
+      "height": "5' 10\"",
+      "weight_lbs": "175",
+      "class": "So.",
+      "hometown": "Florence, Ala. / Mars Hill Bible School"
+    },
+    {
+      "number": "32",
+      "name": "Jay Loper Jr.",
+      "position": "WR",
+      "height": "5' 11\"",
+      "weight_lbs": "185",
+      "class": "Sr.",
+      "hometown": "Daphne, Ala. / Bayside Academy"
+    },
+    {
+      "number": "33",
+      "name": "Kyle Clayton",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "190",
+      "class": "Fr.",
+      "hometown": "Chicago, Ill. / Saint Rita"
+    },
+    {
+      "number": "34",
+      "name": "London Hill",
+      "position": "DB",
+      "height": "5' 11\"",
+      "weight_lbs": "176",
+      "class": "Fr.",
+      "hometown": "Mobile, Ala. / McGill-Toolen"
+    },
+    {
+      "number": "34",
+      "name": "Jessie Washington III",
+      "position": "RB",
+      "height": "5' 9\"",
+      "weight_lbs": "205",
+      "class": "Jr.",
+      "hometown": "Milledgeville, Ga. / Georgia Military College High School"
+    },
+    {
+      "number": "35",
+      "name": "Abduall Sanders Jr.",
+      "position": "LB",
+      "height": "6' 2\"",
+      "weight_lbs": "231",
+      "class": "Fr.",
+      "hometown": "Santa Ana, Calif. / Mater Dei"
+    },
+    {
+      "number": "36",
+      "name": "QB Reese",
+      "position": "LB",
+      "height": "6' 0\"",
+      "weight_lbs": "224",
+      "class": "R-Fr.",
+      "hometown": "Birmingham, Ala. / Ramsay"
+    },
+    {
+      "number": "37",
+      "name": "Cole Davis",
+      "position": "DB",
+      "height": "6' 0\"",
+      "weight_lbs": "195",
+      "class": "So.",
+      "hometown": "Walterboro, S.C. / Colleton Prep Academy"
+    },
+    {
+      "number": "37",
+      "name": "Peter Notaro",
+      "position": "PK",
+      "height": "5' 11\"",
+      "weight_lbs": "188",
+      "class": "Fr.",
+      "hometown": "Wexford, Pa. / North Allegheny"
+    },
+    {
+      "number": "38",
+      "name": "Blake Doud",
+      "position": "P",
+      "height": "6' 5\"",
+      "weight_lbs": "205",
+      "class": "R-Sr.",
+      "hometown": "Parker, Colo. / Legend",
+      "previous_school": "Colorado School of Mines"
+    },
+    {
+      "number": "38",
+      "name": "Brody McCutcheon",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "178",
+      "class": "Fr.",
+      "hometown": "Moody, Ala. / Moody"
+    },
+    {
+      "number": "39",
+      "name": "Jake Ivie",
+      "position": "LB",
+      "height": "6' 0\"",
+      "weight_lbs": "200",
+      "class": "Jr.",
+      "hometown": "Alabaster, Ala. / Thompson"
+    },
+    {
+      "number": "40",
+      "name": "Grant Johnson",
+      "position": "LB",
+      "height": "6' 0\"",
+      "weight_lbs": "220",
+      "class": "Jr.",
+      "hometown": "Casa Grande, Calif. / Casa Grande Union",
+      "previous_school": "Arizona State"
+    },
+    {
+      "number": "41",
+      "name": "Nikhai Hill-Green",
+      "position": "LB",
+      "height": "6' 2\"",
+      "weight_lbs": "235",
+      "class": "Gr.",
+      "hometown": "Pittsburgh, Pa. / Saint Frances Academy",
+      "previous_school": "Michigan / Charlotte / Colorado"
+    },
+    {
+      "number": "42",
+      "name": "Ben Jackson",
+      "position": "WR",
+      "height": "6' 2\"",
+      "weight_lbs": "170",
+      "class": "Fr.",
+      "hometown": "Mobile, Ala. / Murphy"
+    },
+    {
+      "number": "42",
+      "name": "Yhonzae Pierre",
+      "position": "LB",
+      "height": "6' 3\"",
+      "weight_lbs": "248",
+      "class": "R-So.",
+      "hometown": "Eufaula, Ala. / Eufaula"
+    },
+    {
+      "number": "45",
+      "name": "David Bird",
+      "position": "SN",
+      "height": "6' 0\"",
+      "weight_lbs": "205",
+      "class": "Jr.",
+      "hometown": "Phoenix, Ariz. / Sandra Day O’Connor",
+      "previous_school": "Cal"
+    },
+    {
+      "number": "46",
+      "name": "Peyton Fox",
+      "position": "TE",
+      "height": "6' 4\"",
+      "weight_lbs": "250",
+      "class": "Sr.",
+      "hometown": "Pelham, Ala. / Briarwood Christian"
+    },
+    {
+      "number": "46",
+      "name": "Jay Williams",
+      "position": "SN",
+      "height": "6' 0\"",
+      "weight_lbs": "195",
+      "class": "So.",
+      "hometown": "Ringgold, Ga. / Heritage"
+    },
+    {
+      "number": "48",
+      "name": "Prince Butler",
+      "position": "DB",
+      "height": "6' 1\"",
+      "weight_lbs": "205",
+      "class": "R-Sr.",
+      "hometown": "Alexandria, Va. / Hayfield"
+    },
+    {
+      "number": "49",
+      "name": "Conner Warhurst",
+      "position": "DB",
+      "height": "6' 2\"",
+      "weight_lbs": "210",
+      "class": "Jr.",
+      "hometown": "Russellville, Ala. / Russellville"
+    },
+    {
+      "number": "50",
+      "name": "Casey Poe",
+      "position": "OL",
+      "height": "6' 4\"",
+      "weight_lbs": "322",
+      "class": "R-Fr.",
+      "hometown": "Lindale, Texas / Lindale"
+    },
+    {
+      "number": "52",
+      "name": "Alex Rozier",
+      "position": "SN",
+      "height": "6' 4\"",
+      "weight_lbs": "205",
+      "class": "Sr.",
+      "hometown": "Hattiesburg, Miss. / Oak Grove"
+    },
+    {
+      "number": "52",
+      "name": "Mal Waldrep Jr.",
+      "position": "OL",
+      "height": "6' 5\"",
+      "weight_lbs": "324",
+      "class": "Fr.",
+      "hometown": "Seale, Ala. / Central"
+    },
+    {
+      "number": "53",
+      "name": "Vito Perri",
+      "position": "LB",
+      "height": "6' 0\"",
+      "weight_lbs": "220",
+      "class": "R-Jr.",
+      "hometown": "Alpharetta, Ga. / Alpharetta"
+    },
+    {
+      "number": "53",
+      "name": "Mac Smith",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "285",
+      "class": "Jr.",
+      "hometown": "Birmingham, Ala. / Mountain Brook"
+    },
+    {
+      "number": "54",
+      "name": "JD Martin",
+      "position": "OL",
+      "height": "6' 2\"",
+      "weight_lbs": "260",
+      "class": "So.",
+      "hometown": "Pisgah, Ala. / Pisgah"
+    },
+    {
+      "number": "55",
+      "name": "Roq Montgomery",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "330",
+      "class": "R-So.",
+      "hometown": "Anniston, Ala. / Anniston"
+    },
+    {
+      "number": "56",
+      "name": "JD Baird",
+      "position": "LB",
+      "height": "5' 8\"",
+      "weight_lbs": "210",
+      "class": "Sr.",
+      "hometown": "Tuscaloosa, Ala. / American Christian Academy"
+    },
+    {
+      "number": "56",
+      "name": "Geno VanDeMark",
+      "position": "OL",
+      "height": "6' 5\"",
+      "weight_lbs": "326",
+      "class": "R-Sr.",
+      "hometown": "Lodi, N.J. / Saint Joseph",
+      "previous_school": "Michigan State"
+    },
+    {
+      "number": "58",
+      "name": "Jamison Travis",
+      "position": "OL",
+      "height": "6' 2\"",
+      "weight_lbs": "305",
+      "class": "Fr.",
+      "hometown": "Hoover, Ala. / Hoover"
+    },
+    {
+      "number": "61",
+      "name": "Graham Roten",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "295",
+      "class": "R-Sr.",
+      "hometown": "Nashville, Tenn. / Christ Presbyterian Academy"
+    },
+    {
+      "number": "62",
+      "name": "Davis Peterson",
+      "position": "OL",
+      "height": "6' 1\"",
+      "weight_lbs": "285",
+      "class": "Jr.",
+      "hometown": "Birmingham, Ala. / Mountain Brook"
+    },
+    {
+      "number": "64",
+      "name": "Michael Carroll",
+      "position": "OL",
+      "height": "6' 6\"",
+      "weight_lbs": "321",
+      "class": "Fr.",
+      "hometown": "Doylestown, Pa. / IMG Academy"
+    },
+    {
+      "number": "65",
+      "name": "Micah DeBose",
+      "position": "OL",
+      "height": "6' 5\"",
+      "weight_lbs": "319",
+      "class": "Fr.",
+      "hometown": "Mobile, Ala. / Theodore"
+    },
+    {
+      "number": "66",
+      "name": "Baker Hickman",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "340",
+      "class": "Jr.",
+      "hometown": "Tuscaloosa, Ala. / Northridge"
+    },
+    {
+      "number": "67",
+      "name": "Wade Estess",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "315",
+      "class": "So.",
+      "hometown": "Madison, Miss. / Germantown"
+    },
+    {
+      "number": "68",
+      "name": "Billy Roby",
+      "position": "OL",
+      "height": "5' 11\"",
+      "weight_lbs": "285",
+      "class": "Jr.",
+      "hometown": "Huntsville, Ala. / Huntsville"
+    },
+    {
+      "number": "69",
+      "name": "Joseph Ionata",
+      "position": "OL",
+      "height": "6' 5\"",
+      "weight_lbs": "306",
+      "class": "R-Fr.",
+      "hometown": "Clearwater, Fla. / Cavalry Christian"
+    },
+    {
+      "number": "70",
+      "name": "William Sanders",
+      "position": "OL",
+      "height": "6' 3\"",
+      "weight_lbs": "308",
+      "class": "R-Fr.",
+      "hometown": "Brookwood, Ala. / Brookwood"
+    },
+    {
+      "number": "71",
+      "name": "Kam Dewberry",
+      "position": "OL",
+      "height": "6' 4\"",
+      "weight_lbs": "332",
+      "class": "Sr.",
+      "hometown": "Humble, Texas / Atascocita",
+      "previous_school": "Texas A&M"
+    },
+    {
+      "number": "72",
+      "name": "Parker Brailsford",
+      "position": "OL",
+      "height": "6' 2\"",
+      "weight_lbs": "290",
+      "class": "R-Jr.",
+      "hometown": "Mesa, Ariz. / Saguaro",
+      "previous_school": "Washington"
+    },
+    {
+      "number": "73",
+      "name": "Olaus Alinen",
+      "position": "OL",
+      "height": "6' 6\"",
+      "weight_lbs": "322",
+      "class": "R-So.",
+      "hometown": "Pori, Finland / The Loomis Chaffee School (Conn.)"
+    },
+    {
+      "number": "74",
+      "name": "Kadyn Proctor",
+      "position": "OL",
+      "height": "6' 7\"",
+      "weight_lbs": "366",
+      "class": "Jr.",
+      "hometown": "Des Moines, Iowa / Southeast Polk"
+    },
+    {
+      "number": "75",
+      "name": "Wilkin Formby",
+      "position": "OL",
+      "height": "6' 7\"",
+      "weight_lbs": "324",
+      "class": "R-So.",
+      "hometown": "Tuscaloosa, Ala. / Northridge"
+    },
+    {
+      "number": "76",
+      "name": "Arkel Anugwom",
+      "position": "OL",
+      "height": "6' 6\"",
+      "weight_lbs": "328",
+      "class": "R-So.",
+      "hometown": "Antioch, Tenn. / Antioch",
+      "previous_school": "Ball State"
+    },
+    {
+      "number": "77",
+      "name": "Jaeden Roberts",
+      "position": "OL",
+      "height": "6' 5\"",
+      "weight_lbs": "327",
+      "class": "R-Sr.",
+      "hometown": "Houston, Texas / North Shore"
+    },
+    {
+      "number": "78",
+      "name": "Jackson Lloyd",
+      "position": "OL",
+      "height": "6' 7\"",
+      "weight_lbs": "318",
+      "class": "Fr.",
+      "hometown": "Carmel, Calif. / Carmel"
+    },
+    {
+      "number": "80",
+      "name": "Josh Cuevas",
+      "position": "TE",
+      "height": "6' 3\"",
+      "weight_lbs": "256",
+      "class": "R-Sr.",
+      "hometown": "Los Angeles, Calif. / Campbell Hall",
+      "previous_school": "Cal Poly / Washington"
+    },
+    {
+      "number": "81",
+      "name": "Kaleb Edwards",
+      "position": "TE",
+      "height": "6' 6\"",
+      "weight_lbs": "264",
+      "class": "Fr.",
+      "hometown": "El Dorado Hills, Calif. / Oak Ridge"
+    },
+    {
+      "number": "82",
+      "name": "Lane Whisenhunt",
+      "position": "LB",
+      "height": "6' 2\"",
+      "weight_lbs": "225",
+      "class": "Jr.",
+      "hometown": "Vestavia Hills, Ala. / Vestavia Hills"
+    },
+    {
+      "number": "85",
+      "name": "Jack Sammarco",
+      "position": "TE",
+      "height": "6' 5\"",
+      "weight_lbs": "252",
+      "class": "So.",
+      "hometown": "Cincinnati, Ohio / Anderson",
+      "previous_school": "West Virginia"
+    },
+    {
+      "number": "86",
+      "name": "Peter Knudson",
+      "position": "TE",
+      "height": "6' 4\"",
+      "weight_lbs": "246",
+      "class": "R-Sr.",
+      "hometown": "McCall, Idaho / McCall-Donnelly",
+      "previous_school": "Weber State"
+    },
+    {
+      "number": "87",
+      "name": "Danny Lewis Jr.",
+      "position": "TE",
+      "height": "6' 5\"",
+      "weight_lbs": "254",
+      "class": "R-Jr.",
+      "hometown": "New Iberia, La. / Westgate"
+    },
+    {
+      "number": "88",
+      "name": "Isaia Faga",
+      "position": "DL",
+      "height": "6' 2\"",
+      "weight_lbs": "296",
+      "class": "R-Fr.",
+      "hometown": "Phenix City, Ala. / Central"
+    },
+    {
+      "number": "88",
+      "name": "Jay Lindsey",
+      "position": "TE",
+      "height": "6' 5\"",
+      "weight_lbs": "255",
+      "class": "R-Fr.",
+      "hometown": "Butler, Ala. / Patrician Academy"
+    },
+    {
+      "number": "89",
+      "name": "Brody Dalton",
+      "position": "TE",
+      "height": "6' 5\"",
+      "weight_lbs": "251",
+      "class": "R-Sr.",
+      "hometown": "Fyffe, Ala. / Fyffe",
+      "previous_school": "UAB / Troy"
+    },
+    {
+      "number": "90",
+      "name": "London Simmons",
+      "position": "DL",
+      "height": "6' 3\"",
+      "weight_lbs": "303",
+      "class": "Fr.",
+      "hometown": "Jackson, Miss. / Hartfield Academy"
+    },
+    {
+      "number": "92",
+      "name": "Jeremiah Beaman",
+      "position": "DL",
+      "height": "6' 4\"",
+      "weight_lbs": "314",
+      "class": "R-Fr.",
+      "hometown": "Birmingham, Ala. / Parker"
+    },
+    {
+      "number": "94",
+      "name": "Edric Hill",
+      "position": "DL",
+      "height": "6' 3\"",
+      "weight_lbs": "284",
+      "class": "R-So.",
+      "hometown": "Kansas City, Mo. / North Kansas City"
+    },
+    {
+      "number": "95",
+      "name": "Anderson Green",
+      "position": "P",
+      "height": "6' 0\"",
+      "weight_lbs": "205",
+      "class": "So.",
+      "hometown": "Tuscaloosa, Ala. / Northridge"
+    },
+    {
+      "number": "96",
+      "name": "Tim Keenan III",
+      "position": "DL",
+      "height": "6' 2\"",
+      "weight_lbs": "320",
+      "class": "R-Sr.",
+      "hometown": "Birmingham, Ala. / Ramsay"
+    },
+    {
+      "number": "97",
+      "name": "Reid Schuback",
+      "position": "PK",
+      "height": "6' 0\"",
+      "weight_lbs": "215",
+      "class": "R-Sr.",
+      "hometown": "Poway, Calif. / Poway"
+    },
+    {
+      "number": "98",
+      "name": "Tucker Cornelius",
+      "position": "PK",
+      "height": "6' 3\"",
+      "weight_lbs": "195",
+      "class": "So.",
+      "hometown": "Tuscaloosa, Ala. / Northridge"
+    }
+  ]
+}

@@ -18,6 +18,7 @@
       <div id="fileCounter" class="counter">0 / 0</div>
     </div>
     <div class="right">
+  <button id="openBatchBtn" class="btn secondary">Batch Renamer</button>
       <button id="showInFolderBtn" class="btn secondary">Reveal in Finder/Explorer</button>
     </div>
   </header>
@@ -76,6 +77,72 @@
       </div>
     </div>
   </main>
+
+  <!-- Batch Renamer Panel (Web / FS Access API) -->
+  <div id="batchPanel" class="batch-panel hidden" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
+    <div class="batch-card">
+      <div class="batch-head">
+        <h2 id="batchTitle">Batch Renamer (Web / File System Access)</h2>
+        <button id="closeBatchBtn" class="btn secondary">Close</button>
+      </div>
+      <div id="batchSupportMsg" class="batch-support"></div>
+
+      <div class="batch-grid">
+        <div class="field">
+          <label>Folder</label>
+          <div class="row">
+            <button id="brPick" class="btn">Pick Folder</button>
+            <button id="brReopen" class="btn secondary">Reopen Last</button>
+            <button id="brForget" class="btn secondary">Forget Permissions</button>
+          </div>
+          <div id="brFolder" class="muted small"></div>
+        </div>
+
+        <div class="field">
+          <label><input type="checkbox" id="brRecurse" /> Recurse into subfolders</label>
+        </div>
+
+        <div class="field">
+          <label>Extensions (comma-separated)</label>
+          <input id="brExts" type="text" value="mp4,mov,m4v,mkv,avi,webm,mts,m2ts" />
+        </div>
+
+        <div class="field">
+          <label>Filename RegExp (optional)</label>
+          <input id="brRegex" type="text" placeholder="e.g. ^(.+)$" />
+        </div>
+
+        <div class="field">
+          <label>Replacement Template</label>
+          <input id="brTemplate" type="text" placeholder="{name}" />
+          <div class="hint">Tokens: {name}, {ext}; Groups: $1..$9</div>
+        </div>
+
+        <div class="field">
+          <label>Destination Subfolder (optional)</label>
+          <input id="brDest" type="text" placeholder="e.g. Renamed" />
+        </div>
+
+        <div class="field">
+          <label>Conflict Policy</label>
+          <select id="brConflict">
+            <option value="skip">Skip</option>
+            <option value="autonumber">Auto-number</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="row">
+            <button id="brPreview" class="btn">Dry Run</button>
+            <button id="brExecute" class="btn" disabled>Execute</button>
+          </div>
+          <div id="brSummary" class="muted small"></div>
+        </div>
+      </div>
+
+      <div id="brLog" class="batch-log" aria-live="polite"></div>
+    </div>
+  </div>
 
   <div id="toast" class="toast hidden"></div>
 

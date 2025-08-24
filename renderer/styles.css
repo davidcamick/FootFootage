@@ -210,3 +210,21 @@ video.dragging { cursor: grabbing !important; }
   padding:0;
 }
 .tag-pills .pill button:hover { color:#fff; }
+
+/* Batch Renamer */
+.batch-panel { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 20; display: grid; place-items: center; }
+.batch-card { width: min(980px, 92vw); max-height: 88vh; overflow: hidden; background: var(--panel); border:1px solid var(--border); border-radius: 12px; display:flex; flex-direction:column; }
+.batch-head { display:flex; align-items:center; justify-content: space-between; padding: 12px 14px; border-bottom:1px solid var(--border); }
+.batch-head h2 { margin:0; font-size: 18px; }
+.batch-support { padding: 8px 14px; font-size: 13px; color: var(--muted); }
+.batch-grid { padding: 12px 14px; display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.field { display:flex; flex-direction:column; gap:6px; }
+.field input, .field select { padding:8px 10px; background:#0f1220; border:1px solid var(--border); border-radius:10px; color:var(--text); }
+.field label { font-size: 13px; color: var(--muted); }
+.field .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.hint { font-size: 12px; color: var(--muted); }
+.batch-log { padding: 10px 14px; border-top:1px solid var(--border); background:#0f1220; height: 260px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.batch-log .ok { color: #9fe870; }
+.batch-log .err { color: #ff8b8b; }
