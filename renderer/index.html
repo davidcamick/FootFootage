@@ -82,16 +82,27 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Splash overlay shown until footage folder and roster are loaded -->
+  <!-- Splash overlay with two-step onboarding -->
   <div id="splashOverlay" class="splash-overlay">
     <div class="splash-card">
-      <h1 class="splash-title">Footage Renamer</h1>
-      <p class="splash-sub">Import your footage and roster to get started.</p>
-      <div class="row" style="justify-content:center; gap:12px; margin-top:8px;">
-        <button id="splashOpenFolderBtn" class="btn">Open Folder</button>
-        <button id="splashLoadRosterBtn" class="btn secondary">Load Roster</button>
+      <h1 class="splash-title">Welcome to the Footage Renamer</h1>
+      <p class="splash-sub">A tool built by David Camick for Alabama Football</p>
+
+      <div id="splashRosterStep" style="margin-top:12px;">
+        <p class="splash-sub" style="margin-bottom:8px;">Choose a roster option</p>
+        <div class="row" style="justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button id="splashUseBamaBtn" class="btn">Use Alabama Roster</button>
+          <button id="splashImportRosterBtn" class="btn secondary">Import Custom Roster</button>
+          <button id="splashSkipRosterBtn" class="btn secondary">Skip</button>
+        </div>
       </div>
-      <div id="splashStatus" class="muted small" style="text-align:center; margin-top:10px;"></div>
+
+  <div id="splashFootageStep" class="hidden" style="margin-top:16px;">
+        <p class="splash-sub" style="margin-bottom:8px;">Import footage to start</p>
+        <div class="row" style="justify-content:center; gap:12px;">
+          <button id="splashFootageOpenBtn" class="btn">Open Footage Folder</button>
+        </div>
+      </div>
     </div>
   </div>
 
