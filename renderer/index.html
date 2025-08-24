@@ -110,16 +110,33 @@
         <!-- Step 2: Roster -->
         <section class="onboard-step" data-step="1">
           <h2 class="splash-title">Load a roster (optional)</h2>
-          <p class="splash-sub">Choose the built-in roster or import your own JSON.</p>
-          <div class="splash-buttons" style="justify-content:center; gap:14px; flex-wrap:wrap;">
-            <button id="splashImportRosterBtn" class="btn">Import Custom Roster</button>
-            <button id="splashSkipRosterBtn" class="btn secondary">Skip</button>
+          <p class="splash-sub">Pick one of the options below to enable smart tag suggestions.</p>
+
+          <div class="choice-grid">
+            <div class="option-card">
+              <div class="option-head">
+                <h3>Use Alabama Roster</h3>
+                <p class="muted">Preloaded 2025 Alabama roster. Great for a quick try.</p>
+              </div>
+              <div class="option-actions">
+                <button id="splashUseBamaBtn" class="btn">Use Alabama Roster</button>
+              </div>
+            </div>
+
+            <div class="option-card">
+              <div class="option-head">
+                <h3>Import Custom Roster</h3>
+                <p class="muted">Load your own JSON roster file. You can start from a template.</p>
+              </div>
+              <div class="option-actions" style="gap:10px;">
+                <button id="splashImportRosterBtn" class="btn">Import Custom Roster</button>
+                <button id="copyRosterTemplateBtn" class="btn secondary">Copy Roster Template</button>
+              </div>
+            </div>
           </div>
-          <div class="splash-actions" style="margin-top:8px;">
-            <button id="copyRosterTemplateBtn" class="btn secondary">Copy Roster Template</button>
-          </div>
-          <div class="splash-buttons" style="justify-content:center; gap:14px; flex-wrap:wrap; margin-top:12px;">
-            <button id="splashUseBamaBtn" class="btn">Use Alabama Roster</button>
+
+          <div class="splash-actions">
+            <button id="splashSkipRosterBtn" class="btn btn-link">Skip for now</button>
           </div>
         </section>
 

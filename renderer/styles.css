@@ -344,6 +344,10 @@ video.dragging { cursor: grabbing !important; }
 .splash-overlay .btn { padding: clamp(10px, 1.3vw, 14px) clamp(14px, 1.8vw, 22px); font-size: clamp(14px, 1.2vw, 16px); border-radius: 12px; }
 .splash-overlay .btn.secondary { opacity: 0.95; }
 
+/* Link-style button for subtle actions */
+.btn.btn-link { background: transparent; border-color: transparent; color: var(--muted); text-decoration: underline; }
+.btn.btn-link:hover { color: var(--text); text-decoration: none; }
+
 /* Big CTA on final step */
 #splashFootageOpenBtn { padding: clamp(12px, 1.6vw, 16px) clamp(18px, 2.2vw, 26px); font-size: clamp(15px, 1.4vw, 18px); border: 1px solid #3553b8; background: linear-gradient(180deg, #2f68ff, #234dc9); }
 #splashFootageOpenBtn:hover { filter: brightness(1.05); }
@@ -351,3 +355,25 @@ video.dragging { cursor: grabbing !important; }
 /* Center final-step CTA and content */
 .onboard-step[data-step="3"] { display: grid; justify-items: center; row-gap: 10px; text-align: center; }
 #splashFootageOpenBtn { display: inline-block; margin: 8px auto 0; }
+
+/* Choice cards on roster step */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin: 16px auto 4px;
+  width: min(900px, 92vw);
+}
+.option-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 140px;
+}
+.option-head h3 { margin: 0 0 4px; font-size: clamp(16px, 1.4vw, 18px); }
+.option-head p { margin: 0; font-size: 13px; color: var(--muted); }
+.option-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
