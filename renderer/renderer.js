@@ -3,6 +3,7 @@
 const openFolderBtn = document.getElementById('openFolderBtn');
 const loadRosterBtn = document.getElementById('loadRosterBtn');
 const showInFolderBtn = document.getElementById('showInFolderBtn');
+const openDirBtn = document.getElementById('openDirBtn');
 const folderPathEl = document.getElementById('folderPath');
 const fileCounterEl = document.getElementById('fileCounter');
 
@@ -28,6 +29,10 @@ const detailsOverlay = document.getElementById('detailsOverlay');
 const detailsInput = document.getElementById('detailsInput');
 
 const toastEl = document.getElementById('toast');
+const splashOverlay = document.getElementById('splashOverlay');
+const splashOpenFolderBtn = document.getElementById('splashOpenFolderBtn');
+const splashLoadRosterBtn = document.getElementById('splashLoadRosterBtn');
+const splashStatus = document.getElementById('splashStatus');
 
 let DIR = null;
 let FILES = [];
@@ -40,6 +45,21 @@ let isEnteringDetails = false;
 let ROSTER = null; // {team, season, players: []}
 let currentTags = []; // array of player objects currently tagged for the active file (not persisted globally)
 let fileTagCache = new Map(); // path -> array of player objects to allow revisiting
+
+function updateSplashVisibility() {
+  const haveFiles = FILES && FILES.length > 0;
+  const haveRoster = !!ROSTER;
+  if (splashStatus) {
+    const p1 = haveFiles ? 'Footage: Selected' : 'Footage: Not selected';
+    const p2 = haveRoster ? 'Roster: Loaded' : 'Roster: Not loaded';
+    splashStatus.textContent = p1 + ' • ' + p2;
+  }
+  if (haveFiles && haveRoster) {
+    splashOverlay?.classList.add('hidden');
+  } else {
+    splashOverlay?.classList.remove('hidden');
+  }
+}
 
 /* ===== Browser (non-Electron) API polyfill ===== */
 // If preload (Electron) didn't inject window.api, we create a browser version
@@ -574,6 +594,7 @@ openFolderBtn.addEventListener('click', async () => {
     return;
   }
   loadVideoAt(0, true);
+  try { updateSplashVisibility(); } catch {}
 });
 
 showInFolderBtn.addEventListener('click', () => {
@@ -581,6 +602,17 @@ showInFolderBtn.addEventListener('click', () => {
     window.api.showInFolder(FILES[index].path);
   }
 });
+
+// Header: Open Folder in Explorer
+if (typeof openDirBtn !== 'undefined' && openDirBtn) {
+  openDirBtn.addEventListener('click', () => {
+    if (FILES.length) {
+      window.api.showInFolder(FILES[index].path);
+    } else {
+      showToast('Pick a folder first');
+    }
+  });
+}
 
 prevBtn.addEventListener('click', prev);
 nextBtn.addEventListener('click', next);
@@ -733,6 +765,10 @@ document.addEventListener('keydown', (e) => {
 
 /* Auto prompt for folder on first load */
 window.addEventListener('DOMContentLoaded', async () => {
+  // Wire splash CTA buttons
+  if (splashOpenFolderBtn) splashOpenFolderBtn.addEventListener('click', () => openFolderBtn.click());
+  if (splashLoadRosterBtn) splashLoadRosterBtn.addEventListener('click', () => loadRosterBtn.click());
+
   const res = await window.api.pickFolder();
   if (res && !res.canceled) {
     DIR = res.dir;
@@ -746,6 +782,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       videoEl.src = '';
     }
   }
+  try { updateSplashVisibility(); } catch {}
 });
 
 /* Roster load button */
@@ -754,13 +791,14 @@ loadRosterBtn.addEventListener('click', async () => {
   if (res && !res.canceled && res.roster) {
     ROSTER = res.roster;
     showToast('Roster loaded: ' + (ROSTER.team || 'Team'));
+  try { updateSplashVisibility(); } catch {}
   } else if (res && res.error) {
     showToast('Roster error: ' + res.error);
   }
 });
 
 /* Attempt to load stored roster at startup */
-window.api.getRoster().then(r => { if (r && r.ok) { ROSTER = r.roster; } });
+window.api.getRoster().then(r => { if (r && r.ok) { ROSTER = r.roster; } }).finally(() => { try { updateSplashVisibility(); } catch {} });
 
 /* Tag input events */
 tagInput.addEventListener('input', (e) => {
