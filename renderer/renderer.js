@@ -59,6 +59,7 @@ let FILES_META = new Map(); // path -> { sizeBytes, mtimeMs, ext }
 let FILTERS = { q: '', sort: 'name', dir: 'asc', sizeMin: null, sizeMax: null, exts: new Set(), hasTags: false };
 
 let isRenaming = false;
+let _renameContext = { manual: false, restoreTag: false, restoreDetails: false };
 let seeking = false;
 let wasPlayingBeforeSeek = false;
 let _seekPointerId = null;
@@ -855,9 +856,23 @@ function prev() {
 
 /* ===== Rename flow ===== */
 
-function startRename() {
+function startRename(manual = false) {
   if (!FILES.length || isRenaming) return;
   isRenaming = true;
+  _renameContext.manual = !!manual;
+  // If manual during tagging/details, temporarily hide those overlays and remember to restore
+  _renameContext.restoreTag = false;
+  _renameContext.restoreDetails = false;
+  if (manual) {
+    if (isTagging && !tagOverlay.classList.contains('hidden')) {
+      _renameContext.restoreTag = true;
+      tagOverlay.classList.add('hidden');
+    }
+    if (isEnteringDetails && !detailsOverlay.classList.contains('hidden')) {
+      _renameContext.restoreDetails = true;
+      detailsOverlay.classList.add('hidden');
+    }
+  }
 
   const f = FILES[index];
   renameInput.value = f.base; // prefill without extension
@@ -901,6 +916,19 @@ async function saveRenameAndAdvance() {
   isRenaming = false;
   renameOverlay.classList.add('hidden');
 
+  // If this was a manual rename, stay on the same item and optionally restore overlays
+  if (_renameContext.manual) {
+    loadVideoAt(index, true);
+    // Restore previously visible overlays if applicable
+    if (_renameContext.restoreTag) tagOverlay.classList.remove('hidden');
+    if (_renameContext.restoreDetails) detailsOverlay.classList.remove('hidden');
+    _renameContext = { manual: false, restoreTag: false, restoreDetails: false };
+    setFilenameUI();
+    updateCounter();
+    showToast('Renamed');
+    return;
+  }
+
   // Auto-advance
   if (index < FILES.length - 1) {
     loadVideoAt(index + 1, true);
@@ -915,6 +943,12 @@ function cancelRename() {
   if (!isRenaming) return;
   isRenaming = false;
   renameOverlay.classList.add('hidden');
+  // If canceling a manual rename, restore prior overlays
+  if (_renameContext.manual) {
+    if (_renameContext.restoreTag) tagOverlay.classList.remove('hidden');
+    if (_renameContext.restoreDetails) detailsOverlay.classList.remove('hidden');
+    _renameContext = { manual: false, restoreTag: false, restoreDetails: false };
+  }
 }
 
 /* ===== Mouse scrubbing ===== */
@@ -1136,7 +1170,8 @@ document.addEventListener('keydown', (e) => {
   if (isRenaming) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      saveRenameAndAdvance();
+  // Manual rename stays on current clip; otherwise advance
+  saveRenameAndAdvance();
       return;
     }
     if (e.key === 'Escape') {
@@ -1291,6 +1326,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Initial onboarding state
   setOnboardStep(0);
   try { updateSplashVisibility(); } catch {}
+
+  // Make top-center filename clickable for manual rename
+  try {
+    if (fileCounterEl) {
+      fileCounterEl.title = 'Click to rename (manual)';
+      fileCounterEl.style.cursor = 'text';
+      fileCounterEl.addEventListener('click', () => {
+        if (!FILES.length || isRenaming) return;
+        startRename(true); // manual mode: no auto-advance
+      });
+    }
+  } catch {}
 });
 
 /* Roster load button */
