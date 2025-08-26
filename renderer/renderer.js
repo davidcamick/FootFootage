@@ -264,7 +264,7 @@ const BAMA_ROSTER = {
   }
 
   function isVideoFileName(name) {
-    return /\.(mp4|mov|m4v|mkv|avi|webm|mts|m2ts)$/i.test(name);
+    return /\.(mp4|mov|m4v|mkv|avi|webm|mts|m2ts|mxf)$/i.test(name);
   }
 
   function fileToUrl(file) {
@@ -520,10 +520,23 @@ function filterPlayersByNumber(prefix) {
       const parts = full.split(/\s+/).filter(Boolean);
       const first = parts[0] || '';
       const last = parts[parts.length - 1] || '';
+      
+      // Split names by hyphens too for better matching (e.g., "dre-longhorn")
+      const allNameParts = [];
+      for (const part of parts) {
+        allNameParts.push(part);
+        if (part.includes('-')) {
+          allNameParts.push(...part.split('-').filter(Boolean));
+        }
+      }
+      
+      // Check for exact matches in any name part first
       if (last === q) score = 5; // exact last name best
       else if (first === q) score = 4;
+      else if (allNameParts.some(part => part === q)) score = 4; // exact match in any part
       else if (last.startsWith(q)) score = 3;
       else if (first.startsWith(q)) score = 2;
+      else if (allNameParts.some(part => part.startsWith(q))) score = 2; // prefix match in any part
       else if (full.includes(q)) score = 1;
     }
     if (score >= 0) scored.push({ p, score });
