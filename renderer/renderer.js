@@ -40,6 +40,8 @@ const tagSuggestions = document.getElementById('tagSuggestions');
 const currentTagsEl = document.getElementById('currentTags');
 const detailsOverlay = document.getElementById('detailsOverlay');
 const detailsInput = document.getElementById('detailsInput');
+const unsupportedOverlay = document.getElementById('unsupportedOverlay');
+const openExternBtn = document.getElementById('openExternBtn');
 
 const toastEl = document.getElementById('toast');
 const splashOverlay = document.getElementById('splashOverlay');
@@ -417,6 +419,27 @@ const BAMA_ROSTER = {
         return { canceled: true };
       }
     },
+    openExternal: async (path) => {
+      // Prefer Electron native bridge if present
+      if (window.openExternalNative) {
+        try {
+          const r = await window.openExternalNative(path);
+          if (r && r.ok) return r;
+        } catch {}
+      }
+      // Web: try opening the blob URL in a new tab (no forced download)
+      try {
+        const entry = WEB.fileByKey.get(path);
+        if (!entry) return { ok: false, error: 'File not found' };
+        if (entry.url) {
+          window.open(entry.url, '_blank', 'noopener');
+          return { ok: true, opened: true };
+        }
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
+      return { ok: false, error: 'Unsupported in browser' };
+    },
     renameFile: async (fromPath, newBase) => {
       try {
         const file = await webRename(fromPath, newBase);
@@ -431,8 +454,11 @@ const BAMA_ROSTER = {
     confirmDelete: async (fileName) => {
       try { return { confirmed: window.confirm(`Delete this file?\n${fileName}`) }; } catch (e) { return { confirmed: false, error: String(e) }; }
     },
-    showInFolder: (_fullPath) => {
-      // Not available on the web; no-op
+    showInFolder: (fullPath) => {
+      // If Electron provides a native bridge, use it; otherwise no-op in web
+      if (window.showItemInFolderNative) {
+        try { return window.showItemInFolderNative(fullPath); } catch {}
+      }
     },
     pickRoster: async () => {
       try {
@@ -456,8 +482,12 @@ const BAMA_ROSTER = {
     }
   };
 
-  // Hide unsupported UI affordances in web mode
-  try { document.getElementById('showInFolderBtn').style.display = 'none'; } catch {}
+  // Hide reveal button only when no native reveal is available
+  try {
+    if (!window.showItemInFolderNative) {
+      document.getElementById('showInFolderBtn').style.display = 'none';
+    }
+  } catch {}
 })();
 
 /* ===== Utilities ===== */
@@ -838,6 +868,13 @@ function loadVideoAt(i, keepPaused = true) {
   videoEl.pause();
   videoEl.src = f.url;
   videoEl.currentTime = 0;
+  // Hide unsupported overlay by default; may re-show after error or by extension
+  if (unsupportedOverlay) unsupportedOverlay.classList.add('hidden');
+  // If it's MXF, proactively show overlay since browsers won't play it
+  try {
+    const ext = (f.ext || '').toLowerCase();
+    if (ext === '.mxf' && unsupportedOverlay) unsupportedOverlay.classList.remove('hidden');
+  } catch {}
   if (!keepPaused) {
     videoEl.play().catch(() => {});
   }
@@ -1121,6 +1158,7 @@ videoEl.addEventListener('error', () => {
     // Provide specific feedback for known unsupported formats
     if (ext === 'MXF') {
       showToast(`MXF files are not supported by web browsers. Try converting to MP4, MOV, or WebM format.`, 5000);
+  if (unsupportedOverlay) unsupportedOverlay.classList.remove('hidden');
     } else if (['AVI', 'MKV', 'MTS', 'M2TS'].includes(ext)) {
       showToast(`${ext} format may not be fully supported. Try MP4, MOV, or WebM for best compatibility.`, 4000);
     } else {
@@ -1238,8 +1276,9 @@ document.addEventListener('keydown', (e) => {
       e.preventDefault();
       const details = sanitizeBaseName(detailsInput.value.trim());
       const file = FILES[index];
-      const baseNoExtra = file.base.split(/_(?=[^_]+$)/)[0] || file.base; // first segment before last underscore if any
-      let taggedBase = buildTaggedBaseName(baseNoExtra, currentTags);
+  // Always retain the entire original base name; do not strip segments after underscores
+  const originalBase = file.base;
+  let taggedBase = buildTaggedBaseName(originalBase, currentTags);
       if (details) taggedBase = taggedBase + '_' + details;
       closeDetailsOverlay();
   performTagRename(file, taggedBase);
@@ -1555,4 +1594,20 @@ loadVideoAt = function(i, keepPaused = true) { // override while preserving orig
   _origLoadVideoAt(i, keepPaused);
   resetZoomPan();
 };
+
+/* ===== Open externally for unsupported formats ===== */
+if (openExternBtn) {
+  openExternBtn.addEventListener('click', async () => {
+    if (!FILES.length) return;
+    const file = FILES[index];
+    const res = await window.api.openExternal(file.path);
+    if (res && res.ok) {
+      showToast(res.downloaded ? 'Downloading file to open locally…' : 'Opening externally…');
+    } else if (res && res.error) {
+      showToast('Could not open externally: ' + res.error);
+    } else {
+      showToast('Could not open externally');
+    }
+  });
+}
 

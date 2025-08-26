@@ -28,6 +28,17 @@
     <div class="viewer">
       <video id="video" preload="metadata" playsinline></video>
 
+      <!-- Unsupported format overlay (shown for MXF, etc.) -->
+      <div id="unsupportedOverlay" class="overlay rename-overlay hidden" aria-live="polite">
+        <div class="rename-card">
+          <div class="rename-label">This format isn't supported for in‑browser playback.</div>
+          <div class="hint" style="margin-bottom:10px;">Open with your computer’s default media player.</div>
+          <div class="splash-actions">
+            <button id="openExternBtn" class="btn">Open in Default Player</button>
+          </div>
+        </div>
+      </div>
+
       <div class="overlay rename-overlay hidden" id="renameOverlay">
         <div class="rename-card">
           <div class="rename-label">Rename (keep extension auto):</div>
