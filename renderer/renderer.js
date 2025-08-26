@@ -1111,6 +1111,38 @@ videoEl.addEventListener('loadedmetadata', updateSeekUI);
 videoEl.addEventListener('timeupdate', updateSeekUI);
 videoEl.addEventListener('durationchange', updateSeekUI);
 
+// Handle video loading errors (e.g., unsupported formats like MXF)
+videoEl.addEventListener('error', () => {
+  const currentFile = FILES[index];
+  if (currentFile) {
+    const fileName = currentFile.name || '';
+    const ext = fileName.slice(fileName.lastIndexOf('.') + 1).toUpperCase();
+    
+    // Provide specific feedback for known unsupported formats
+    if (ext === 'MXF') {
+      showToast(`MXF files are not supported by web browsers. Try converting to MP4, MOV, or WebM format.`, 5000);
+    } else if (['AVI', 'MKV', 'MTS', 'M2TS'].includes(ext)) {
+      showToast(`${ext} format may not be fully supported. Try MP4, MOV, or WebM for best compatibility.`, 4000);
+    } else {
+      showToast(`Unable to play ${fileName}. Format may not be supported by this browser.`, 3000);
+    }
+    
+    console.warn(`Video playback error for file: ${fileName} (${ext} format)`);
+  }
+});
+
+// Handle cases where video loading stalls (additional safety net)
+videoEl.addEventListener('stalled', () => {
+  const currentFile = FILES[index];
+  if (currentFile) {
+    const fileName = currentFile.name || '';
+    const ext = fileName.slice(fileName.lastIndexOf('.') + 1).toUpperCase();
+    if (ext === 'MXF') {
+      showToast(`MXF format is not supported by web browsers.`, 3000);
+    }
+  }
+});
+
 seekEl.addEventListener('mousedown', () => {
   seeking = true;
   wasPlayingBeforeSeek = !videoEl.paused;
