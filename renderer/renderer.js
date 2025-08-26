@@ -1166,6 +1166,12 @@ document.addEventListener('keydown', (e) => {
     stepFrame(e.key === 'ArrowRight' ? +1 : -1);
     return;
   }
+  // Frame-by-frame scrubbing with comma and period keys
+  if (e.key === ',' || e.key === '.') {
+    e.preventDefault();
+    stepFrame(e.key === '.' ? +1 : -1);
+    return;
+  }
   // If typing in rename input, let Enter go through to save
   if (isRenaming) {
     if (e.key === 'Enter') {
