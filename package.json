@@ -5,8 +5,8 @@
   "scripts": {
   "web": "vite renderer",
   "dev": "vite renderer",
-  "build": "vite build --base=/ renderer",
-  "build:web": "vite build --base=/ renderer"
+  "build": "vite build --base=/ --outDir ../dist --emptyOutDir renderer",
+  "build:web": "vite build --base=/ --outDir ../dist --emptyOutDir renderer"
   },
   "devDependencies": {
   "vite": "^5.4.2"
