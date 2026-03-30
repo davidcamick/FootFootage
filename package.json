@@ -5,6 +5,7 @@
   "scripts": {
   "web": "vite renderer",
   "dev": "vite renderer",
+  "build": "vite build --base=/ renderer",
   "build:web": "vite build --base=/ renderer"
   },
   "devDependencies": {
