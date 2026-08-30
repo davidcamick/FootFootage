@@ -19,6 +19,7 @@ const listExtContainer = document.getElementById('listExtContainer');
 const fileListContainer = document.getElementById('fileListContainer');
 const listCountEl = document.getElementById('listCountEl');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+const workflowMode = document.getElementById('workflowMode');
 
 const videoEl = document.getElementById('video');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -40,6 +41,10 @@ const tagSuggestions = document.getElementById('tagSuggestions');
 const currentTagsEl = document.getElementById('currentTags');
 const detailsOverlay = document.getElementById('detailsOverlay');
 const detailsInput = document.getElementById('detailsInput');
+const genericOverlay = document.getElementById('genericOverlay');
+const genericInput = document.getElementById('genericInput');
+const genericSuggestions = document.getElementById('genericSuggestions');
+const shortcutTip = document.getElementById('shortcutTip');
 const unsupportedOverlay = document.getElementById('unsupportedOverlay');
 const openExternBtn = document.getElementById('openExternBtn');
 
@@ -51,7 +56,8 @@ const splashSkipRosterBtn = document.getElementById('splashSkipRosterBtn');
 const splashFootageOpenBtn = document.getElementById('splashFootageOpenBtn');
 const copyRosterTemplateBtn = document.getElementById('copyRosterTemplateBtn');
 // New onboarding controls
-const splashStartBtn = document.getElementById('splashStartBtn');
+const chooseFootballBtn = document.getElementById('chooseFootballBtn');
+const chooseGenericBtn = document.getElementById('chooseGenericBtn');
 const splashShortcutsContinueBtn = document.getElementById('splashShortcutsContinueBtn');
 
 let DIR = null;
@@ -68,6 +74,15 @@ let _seekPointerId = null;
 let _seekRect = null;
 let isTagging = false;
 let isEnteringDetails = false;
+let isGenericLabeling = false;
+let labelingMode = (() => {
+  try { return localStorage.getItem('FR_WORKFLOW_MODE') === 'generic' ? 'generic' : 'football'; }
+  catch { return 'football'; }
+})();
+let genericLabels = (() => {
+  try { return JSON.parse(localStorage.getItem('FR_GENERIC_LABELS') || '[]').filter(label => typeof label === 'string'); }
+  catch { return []; }
+})();
 let ROSTER = null; // {team, season, players: []}
 let currentTags = []; // array of player objects currently tagged for the active file (not persisted globally)
 let fileTagCache = new Map(); // path -> array of player objects to allow revisiting
@@ -507,6 +522,10 @@ function sanitizeBaseName(name) {
   return cleaned.replace(/^\.+$/, '').trim();
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[character]);
+}
+
 function getLastName(fullName) {
   if (!fullName) return '';
   const parts = fullName.trim().split(/\s+/);
@@ -531,6 +550,50 @@ function buildTaggedBaseName(originalBase, tags) {
   const suffixes = tags.map(p => getLastName(p.name)).filter(Boolean);
   if (!suffixes.length) return originalBase;
   return originalBase + '_' + suffixes.join('_');
+}
+
+function setLabelingMode(mode) {
+  labelingMode = mode === 'generic' ? 'generic' : 'football';
+  try { localStorage.setItem('FR_WORKFLOW_MODE', labelingMode); } catch {}
+  if (workflowMode) workflowMode.value = labelingMode;
+  if (loadRosterBtn) loadRosterBtn.classList.toggle('hidden', labelingMode === 'generic');
+  if (shortcutTip) shortcutTip.textContent = labelingMode === 'generic'
+    ? 'Shortcuts: Enter label • ←/→ navigate • , / . frame by frame • Space play/pause • Esc cancel'
+    : 'Shortcuts: Enter tag → details → rename • T tag directly • ←/→ navigate • , / . frame by frame • Space play/pause • Esc cancel';
+}
+
+function renderGenericSuggestions(query = '') {
+  const q = query.trim().toLowerCase();
+  const matches = genericLabels.filter(label => !q || label.toLowerCase().startsWith(q)).slice(0, 8);
+  genericSuggestions.innerHTML = matches.map(label => `<button class="item" type="button" data-label="${escapeHtml(label)}">${escapeHtml(label)}</button>`).join('');
+  genericSuggestions.classList.toggle('hidden', matches.length === 0);
+}
+
+function openGenericOverlay() {
+  if (!FILES.length || isRenaming || isGenericLabeling) return;
+  isGenericLabeling = true;
+  genericInput.value = '';
+  genericOverlay.classList.remove('hidden');
+  renderGenericSuggestions();
+  setTimeout(() => genericInput.focus(), 0);
+}
+
+function closeGenericOverlay() {
+  isGenericLabeling = false;
+  genericOverlay.classList.add('hidden');
+}
+
+async function saveGenericLabel() {
+  const label = sanitizeBaseName(genericInput.value);
+  if (!label) { showToast('Enter a label first'); return; }
+  const file = FILES[index];
+  if (!genericLabels.some(item => item.toLowerCase() === label.toLowerCase())) {
+    genericLabels.unshift(label);
+    genericLabels = genericLabels.slice(0, 100);
+    try { localStorage.setItem('FR_GENERIC_LABELS', JSON.stringify(genericLabels)); } catch {}
+  }
+  closeGenericOverlay();
+  await performTagRename(file, `${file.base}_${label}`);
 }
 
 function filterPlayersByNumber(prefix) {
@@ -1110,6 +1173,26 @@ muteBtn.addEventListener('click', () => {
   muteBtn.textContent = videoEl.muted ? 'Unmute' : 'Mute';
 });
 
+workflowMode.addEventListener('change', () => {
+  closeTagOverlay();
+  closeDetailsOverlay();
+  closeGenericOverlay();
+  setLabelingMode(workflowMode.value);
+  showToast(labelingMode === 'generic' ? 'Generic labeling enabled' : 'Player tagging enabled');
+});
+
+genericInput.addEventListener('input', () => renderGenericSuggestions(genericInput.value));
+genericSuggestions.addEventListener('click', event => {
+  const option = event.target.closest('[data-label]');
+  if (!option) return;
+  genericInput.value = option.dataset.label;
+  renderGenericSuggestions(genericInput.value);
+  genericInput.focus();
+});
+genericOverlay.addEventListener('click', event => {
+  if (event.target === genericOverlay) closeGenericOverlay();
+});
+
 deleteBtn.addEventListener('click', async () => {
   if (!FILES.length) return;
   const file = FILES[index];
@@ -1271,6 +1354,17 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  if (isGenericLabeling) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveGenericLabel();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeGenericOverlay();
+    }
+    return;
+  }
+
   if (isEnteringDetails) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -1339,9 +1433,10 @@ document.addEventListener('keydown', (e) => {
     } else {
       videoEl.pause();
     }
-  } else if (e.key === 'Enter') { // new flow: Enter -> tag overlay first
+  } else if (e.key === 'Enter') {
     e.preventDefault();
-    openTagOverlay();
+    if (labelingMode === 'generic') openGenericOverlay();
+    else openTagOverlay();
   } else if (e.key === 'Delete') {
     e.preventDefault();
     deleteBtn.click();
@@ -1351,7 +1446,15 @@ document.addEventListener('keydown', (e) => {
 /* Startup: wire splash and update visibility */
 window.addEventListener('DOMContentLoaded', async () => {
   // Onboarding buttons
-  if (splashStartBtn) splashStartBtn.addEventListener('click', () => setOnboardStep(1));
+  setLabelingMode(labelingMode);
+  if (chooseFootballBtn) chooseFootballBtn.addEventListener('click', () => {
+    setLabelingMode('football');
+    setOnboardStep(1);
+  });
+  if (chooseGenericBtn) chooseGenericBtn.addEventListener('click', () => {
+    setLabelingMode('generic');
+    setOnboardStep(2);
+  });
   if (splashShortcutsContinueBtn) splashShortcutsContinueBtn.addEventListener('click', () => setOnboardStep(3));
 
   // Splash: use built-in Bama roster
@@ -1610,4 +1713,3 @@ if (openExternBtn) {
     }
   });
 }
-
