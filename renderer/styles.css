@@ -80,6 +80,20 @@ body.onboarding-active .toast { display: none !important; }
 }
 .btn:hover { background: var(--btn-hover); }
 .btn.secondary { opacity: 0.9; }
+.mode-select {
+  appearance: none;
+  color: var(--text);
+  background: #0f1220;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 30px 8px 11px;
+  font: inherit;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
 
 .main {
   padding: 18px;
@@ -269,6 +283,16 @@ video.dragging { cursor: grabbing !important; }
   background: #0f1220;
   color: var(--text);
 }
+#genericInput {
+  width: 100%;
+  padding: 12px;
+  font-size: 17px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f1220;
+  color: var(--text);
+}
+.suggestions.compact .item { width: 100%; border: 0; color: var(--text); background: transparent; text-align: left; }
 .rename-card .hint { margin-top: 6px; font-size: 12px; color: var(--muted); }
 
 .toast {
@@ -416,6 +440,11 @@ video.dragging { cursor: grabbing !important; }
 .option-head h3 { margin: 0 0 4px; font-size: clamp(16px, 1.4vw, 18px); }
 .option-head p { margin: 0; font-size: 13px; color: var(--muted); }
 .option-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
+.workflow-choice { margin-top: 24px; }
+.workflow-card { color: var(--text); text-align: left; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.workflow-card:hover { transform: translateY(-3px); border-color: var(--accent); background: #1b2030; }
+.workflow-card strong { font-size: 18px; }
+.workflow-card span { color: var(--muted); line-height: 1.5; }
 
 /* Responsive: collapse sidebar */
 @media (max-width: 980px) {

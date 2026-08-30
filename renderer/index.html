@@ -11,6 +11,10 @@
   <header class="app-header">
     <div class="left">
       <button id="openFolderBtn" class="btn">Open Folder</button>
+  <select id="workflowMode" class="mode-select" aria-label="Labeling workflow">
+    <option value="football">Player tagging</option>
+    <option value="generic">Generic labeling</option>
+  </select>
   <button id="loadRosterBtn" class="btn secondary">Load Roster</button>
   <button id="toggleListBtn" class="btn secondary">List View</button>
       <div id="folderPath" class="folder-path"></div>
@@ -31,8 +35,8 @@
       <!-- Unsupported format overlay (shown for MXF, etc.) -->
       <div id="unsupportedOverlay" class="overlay rename-overlay hidden" aria-live="polite">
         <div class="rename-card">
-          <div class="rename-label">This format isn't supported for in‑browser playback.</div>
-          <div class="hint" style="margin-bottom:10px;">Open with your computer’s default media player.</div>
+          <div class="rename-label">Your browser cannot decode this clip.</div>
+          <div class="hint" style="margin-bottom:10px;">High-frame-rate 10-bit/HEVC and MXF playback depends on browser and operating-system codec support. Labeling, renaming, and navigation remain fully available.</div>
           <div class="splash-actions">
             <button id="openExternBtn" class="btn">Open in Default Player</button>
           </div>
@@ -65,6 +69,15 @@
         </div>
       </div>
 
+      <div class="overlay rename-overlay hidden" id="genericOverlay">
+        <div class="rename-card">
+          <div class="rename-label">Generic label</div>
+          <input id="genericInput" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. crowd, DJ, static" />
+          <div id="genericSuggestions" class="suggestions compact hidden"></div>
+          <div class="hint">Previously used labels autocomplete as you type • Enter appends the label and opens the next clip • Esc cancels</div>
+        </div>
+      </div>
+
       <div class="controls">
         <div class="row">
           <button id="prevBtn" class="btn">⟵ Prev</button>
@@ -84,7 +97,7 @@
         </div>
 
         <div class="row tips">
-          <span>Shortcuts: Enter tag → details → rename • T tag directly • ←/→ navigate • , / . frame by frame • Space play/pause • Esc cancel</span>
+          <span id="shortcutTip">Shortcuts: Enter tag → details → rename • T tag directly • ←/→ navigate • , / . frame by frame • Space play/pause • Esc cancel</span>
         </div>
       </div>
     </div>
@@ -144,14 +157,19 @@
         <!-- Step 1: Welcome -->
         <section class="onboard-step" data-step="0">
           <h1 class="splash-title">Welcome to Footage Renamer</h1>
-          <p class="splash-sub">Built by David Camick to label football footage in minutes instead of hours</p>
+          <p class="splash-sub">Fast, repeatable labeling for sports and general-purpose footage</p>
           <ul class="splash-list">
-            <li>Load a roster for smart tag suggestions.</li>
-            <li>Type jersey numbers to tag; Enter to confirm.</li>
-            <li>Auto-append last names to filenames.</li>
+            <li>Choose player tagging or generic labeling.</li>
+            <li>Reuse labels with instant autocomplete.</li>
+            <li>Keep each camera-generated clip number intact.</li>
           </ul>
-          <div class="splash-actions">
-            <button id="splashStartBtn" class="btn">Get Started</button>
+          <div class="choice-grid workflow-choice">
+            <button id="chooseFootballBtn" class="option-card workflow-card" type="button">
+              <strong>Player tagging</strong><span>Roster suggestions, player names, and extra details.</span>
+            </button>
+            <button id="chooseGenericBtn" class="option-card workflow-card" type="button">
+              <strong>Generic labeling</strong><span>Reusable labels such as crowd, DJ, and static—no roster required.</span>
+            </button>
           </div>
         </section>
 
